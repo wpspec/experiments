@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML canvas grid</title>
+  <style>
+    canvas {
+      border: 1px solid #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gridCanvas" width="250" height="250"></canvas>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+      var canvas = document.getElementById('gridCanvas');
+      var ctx = canvas.getContext('2d');
+      var cellSize = 50;
+
+      var playerX = 2;
+      var playerY = 2;
+
+      var enemyX;
+      var enemyY;
+
+      function drawGrid() {
+        for (var x = 0; x <= canvas.width; x += cellSize) {
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, canvas.height);
+        }
+
+        for (var y = 0; y <= canvas.height; y += cellSize) {
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+        }
+
+        ctx.strokeStyle = "#000";
+        ctx.stroke();
+      }
+
+      function drawPlayer() {
+        var playerPosX = playerX * cellSize + cellSize / 4;
+        var playerPosY = playerY * cellSize + cellSize / 4;
+        var playerSize = cellSize / 2;
+
+        ctx.fillStyle = "blue";
+        ctx.fillRect(playerPosX, playerPosY, playerSize, playerSize);
+
+        drawTriangle(playerPosX + playerSize / 2, playerPosY - cellSize / 4, "up");
+        drawTriangle(playerPosX - cellSize / 4, playerPosY + playerSize / 2, "left");
+        drawTriangle(playerPosX + playerSize + cellSize / 4, playerPosY + playerSize / 2, "right");
+        drawTriangle(playerPosX + playerSize / 2, playerPosY + playerSize + cellSize / 4, "down");
+      }
+
+      function drawEnemy() {
+        var enemyPosX = enemyX * cellSize + cellSize / 4;
+        var enemyPosY = enemyY * cellSize + cellSize / 4;
+        var enemySize = cellSize / 2;
+
+        ctx.fillStyle = "red";
+        ctx.fillRect(enemyPosX, enemyPosY, enemySize, enemySize);
+      }
+
+      function generateRandomPosition() {
+        enemyX = Math.floor(Math.random() * 5);
+        enemyY = Math.floor(Math.random() *5);
+      }
+
+      function drawTriangle(x, y, direction) {
+        ctx.fillStyle = "#000";
+        ctx.beginPath();
+
+        ctx.lineWidth = 0;
+
+        if (direction === "up") {
+          ctx.moveTo(x, y);
+          ctx.lineTo(x - cellSize / 8, y - cellSize / 4);
+          ctx.lineTo(x + cellSize / 8, y - cellSize / 4);
+        } else if (direction === "left") {
+          ctx.moveTo(x, y);
+          ctx.lineTo(x - cellSize / 4, y - cellSize / 8);
+          ctx.lineTo(x - cellSize / 4, y + cellSize / 8);
+        } else if (direction === "right") {
+          ctx.moveTo(x, y);
+          ctx.lineTo(x + cellSize / 4, y - cellSize / 8);
+          ctx.lineTo(x + cellSize / 4, y + cellSize /8);
+        } else if (direction === "down") {
+          ctx.moveTo(x, y);
+          ctx.lineTo(x - cellSize / 8, y + cellSize / 4);
+          ctx.lineTo(x + cellSize / 8, y + cellSize / 4);
+        }
+
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid();
+        drawPlayer();
+        drawEnemy();
+      }
+
+      function respawnEnemy() {
+        generateRandomPosition();
+        draw();
+      }
+
+      generateRandomPosition();
+      draw();
+
+      document.addEventListener('keydown', function (event) {
+        switch (event.key) {
+          case 'ArrowRight':
+            playerX = Math.min(4, playerX + 1);
+            break;
+          case 'ArrowLeft':
+            playerX = Math.max(0, playerX - 1);
+            break;
+          case 'ArrowDown':
+            playerY = Math.min(4, playerY + 1);
+            break;
+          case 'ArrowUp':
+            playerY = Math.max(0, playerY - 1);
+            break;
+        }
+
+        if (playerX === enemyX && playerY === enemyY) {
+          respawnEnemy();
+        } else {
+          draw();
+        }
+      });
+
+    });
+  </script>
+</body>
+</html>
