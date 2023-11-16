@@ -8,11 +8,18 @@
     canvas {
       border: 1px solid #000;
     }
+
+    #infoContainer {
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
   <canvas id="gridCanvas" width="250" height="250"></canvas>
-
+  <div id="infoContainer">
+    <p id="killsCounter">Kills: 0</p>
+    <button id="toggleMovementButton">Toggle Movement</button>
+  </div>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -25,6 +32,9 @@
 
       var enemyX;
       var enemyY;
+
+      var enemyKills = 0;
+      var isPlayerMoving = false;
 
       function drawGrid() {
         for (var x = 0; x <= canvas.width; x += cellSize) {
@@ -49,10 +59,9 @@
         ctx.fillStyle = "blue";
         ctx.fillRect(playerPosX, playerPosY, playerSize, playerSize);
 
-        drawTriangle(playerPosX + playerSize / 2, playerPosY - cellSize / 4, "up");
-        drawTriangle(playerPosX - cellSize / 4, playerPosY + playerSize / 2, "left");
-        drawTriangle(playerPosX + playerSize + cellSize / 4, playerPosY + playerSize / 2, "right");
-        drawTriangle(playerPosX + playerSize / 2, playerPosY + playerSize + cellSize / 4, "down");
+        ctx.fillStyle = "#000"; // Black color
+        ctx.font = "12px Arial";
+        ctx.fillText("PL", playerPosX + playerSize / 4, playerPosY + playerSize / 2 + 5);
       }
 
       function drawEnemy() {
@@ -64,37 +73,14 @@
         ctx.fillRect(enemyPosX, enemyPosY, enemySize, enemySize);
       }
 
+      function drawCounter() {
+        var counterElement = document.getElementById('killsCounter');
+        counterElement.textContent = "Kills: " + enemyKills;
+      }
+
       function generateRandomPosition() {
         enemyX = Math.floor(Math.random() * 5);
         enemyY = Math.floor(Math.random() *5);
-      }
-
-      function drawTriangle(x, y, direction) {
-        ctx.fillStyle = "#000";
-        ctx.beginPath();
-
-        ctx.lineWidth = 0;
-
-        if (direction === "up") {
-          ctx.moveTo(x, y);
-          ctx.lineTo(x - cellSize / 8, y - cellSize / 4);
-          ctx.lineTo(x + cellSize / 8, y - cellSize / 4);
-        } else if (direction === "left") {
-          ctx.moveTo(x, y);
-          ctx.lineTo(x - cellSize / 4, y - cellSize / 8);
-          ctx.lineTo(x - cellSize / 4, y + cellSize / 8);
-        } else if (direction === "right") {
-          ctx.moveTo(x, y);
-          ctx.lineTo(x + cellSize / 4, y - cellSize / 8);
-          ctx.lineTo(x + cellSize / 4, y + cellSize /8);
-        } else if (direction === "down") {
-          ctx.moveTo(x, y);
-          ctx.lineTo(x - cellSize / 8, y + cellSize / 4);
-          ctx.lineTo(x + cellSize / 8, y + cellSize / 4);
-        }
-
-        ctx.closePath();
-        ctx.fill();
       }
 
       function draw() {
@@ -102,38 +88,58 @@
         drawGrid();
         drawPlayer();
         drawEnemy();
+        drawCounter();
       }
 
       function respawnEnemy() {
+        enemyKills++;
         generateRandomPosition();
         draw();
+      }
+
+      function movePlayerRandomly() {
+        if (isPlayerMoving) {
+          var randomDirection = Math.floor(Math.random() * 4);
+
+          switch (randomDirection) {
+            case 0:
+              playerX = Math.min(4, playerX + 1);
+              break;
+            case 1:
+              playerX = Math.max(0, playerX - 1);
+              break;
+            case 2:
+              playerY = Math.min(4, playerY + 1);
+              break;
+            case 3:
+              playerY = Math.max(0, playerY - 1);
+              break;
+          }
+
+          if (playerX === enemyX && playerY === enemyY) {
+            respawnEnemy();
+          }
+
+          draw();
+
+          setTimeout(movePlayerRandomly, 500);
+
+        }
+      }
+
+      function togglePlayerMovement() {
+        isPlayerMoving = !isPlayerMoving;
+
+        if (isPlayerMoving) {
+          movePlayerRandomly();
+        }
       }
 
       generateRandomPosition();
       draw();
 
-      document.addEventListener('keydown', function (event) {
-        switch (event.key) {
-          case 'ArrowRight':
-            playerX = Math.min(4, playerX + 1);
-            break;
-          case 'ArrowLeft':
-            playerX = Math.max(0, playerX - 1);
-            break;
-          case 'ArrowDown':
-            playerY = Math.min(4, playerY + 1);
-            break;
-          case 'ArrowUp':
-            playerY = Math.max(0, playerY - 1);
-            break;
-        }
-
-        if (playerX === enemyX && playerY === enemyY) {
-          respawnEnemy();
-        } else {
-          draw();
-        }
-      });
+      var toggleMovementButton = document.getElementById('toggleMovementButton');
+      toggleMovementButton.addEventListener('click', togglePlayerMovement);
 
     });
   </script>
