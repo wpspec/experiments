@@ -12,23 +12,20 @@ const player = {
 
 let bullets = [];
 
-const enemy = {
-  x: canvas.width - 70,
-  y: canvas.height / 2 - 25,
-  width: 50,
-  height: 50,
-  color: 'red',
-  speed: 2,
-};
+let enemies = [];
+
+let score = 0;
 
 function drawPlayer() {
   ctx.fillStyle = player.color;
   ctx.fillRect(player.x, player.y, player.width, player.height);
 }
 
-function drawEnemy() {
-  ctx.fillStyle = enemy.color;
-  ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+function drawEnemies() {
+  ctx.fillStyle = 'red';
+  for (const enemy of enemies) {
+    ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+  }
 }
 
 function drawBullets() {
@@ -38,7 +35,6 @@ function drawBullets() {
   }
 }
 
-
 function moveBullets() {
   for (const bullet of bullets) {
     bullet.x += 5;
@@ -46,34 +42,65 @@ function moveBullets() {
   bullets = bullets.filter(bullet => bullet.x < canvas.width);
 }
 
+function moveEnemies() {
+  for (const enemy of enemies) {
+    enemy.x -= enemy.speed;
+  }
+  enemies = enemies.filter(enemy => enemy.x + enemy.width > 0);
+}
+
+function spawnEnemy() {
+  const newEnemy = {
+    x: canvas.width,
+    y: Math.floor(Math.random() * canvas.height - 50),
+    width: 50,
+    height: 50,
+    speed: 2,
+  };
+  enemies.push(newEnemy);
+}
+
 function collisionDetection() {
   for (const bullet of bullets) {
-    if (
-      bullet.x < enemy.x + enemy.width && 
-      bullet.x + bullet.width > enemy.x &&
-      bullet.y < enemy.y + enemy.height &&
-      bullet.y + bullet.height > enemy.y
-    ) {
-      alert('You Win!');
-      resetGame();
+    for (let i = 0; i < enemies.length; i ++) {
+      const enemy = enemies[i];
+      if (
+        bullet.x < enemy.x + enemy.width && 
+        bullet.x + bullet.width > enemy.x &&
+        bullet.y < enemy.y + enemy.height &&
+        bullet.y + bullet.height > enemy.y
+        ) {
+        score++;
+        enemies.splice(i, 1);
+        i--;
+      }
     }
   }
 }
 
 function resetGame() {
   player.y = canvas.height / 2 - 25;
-  enemy.x = canvas.width - 70;
   bullets.length = 0;
+  enemies.length = 0;
+  score = 0;
+}
+
+function displayScore() {
+  ctx.fillStyle = 'black';
+  ctx.font = '20px Arial';
+  ctx.fillText('Score: ' + score, 10, 30);
 }
 
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   drawPlayer();
-  drawEnemy();
+  drawEnemies();
   drawBullets();
   moveBullets();
+  moveEnemies();
   collisionDetection();
+  displayScore();
 
   if (player.y < 0 || player.y + player.height > canvas.height) {
     resetGame();
@@ -99,3 +126,7 @@ function handleKeyDown(event) {
 
 document.addEventListener('keydown', handleKeyDown);
 gameLoop();
+
+setInterval(() => {
+  spawnEnemy();
+}, 3000);
