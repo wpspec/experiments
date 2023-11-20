@@ -7,7 +7,7 @@ const player = {
   width: 20,
   height: 20,
   color: '#00F',
-  speed: 5,
+  speed: 0.05,
 };
 
 const minion = {
@@ -19,9 +19,13 @@ const minion = {
   speed: 2,
 };
 
+let isMousePressed = false;
+let targetX = canvas.width / 2;
+let targetY = canvas.height - 30;
+
 function drawPlayer() {
   ctx.fillStyle = player.color;
-  ctx.fillRect(player.x, player.y, player.width, player.height);
+  ctx.fillRect(player.x - player.width / 2, player.y - player.height / 2, player.width, player.height);
 }
 
 function drawMinion() {
@@ -30,13 +34,17 @@ function drawMinion() {
 }
 
 function update() {
+
+  player.x = lerp(player.x, targetX, player.speed);
+  player.y = lerp(player.y, targetY, player.speed);
+
   minion.x -= minion.speed;
 
   if (
-    player.x < minion.x + minion.width &&
-    player.x + player.width > minion.x &&
-    player.y < minion.y + minion.height &&
-    player.y + player.height > minion.y
+    player.x - player.width / 2 < minion.x + minion.width &&
+    player.x + player.width / 2 > minion.x &&
+    player.y - player.height / 2 < minion.y + minion.height &&
+    player.y + player.height / 2 > minion.y
   ) {
     alert('Minion caught! You got it!');
     resetMinion();
@@ -52,6 +60,10 @@ function resetMinion() {
   minion.x = canvas.width - 50;
 }
 
+function lerp(start, end, t) {
+  return start * (1 - t) + end * t;
+}
+
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -63,12 +75,14 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-document.addEventListener('keydown', function (event) {
-  if (event.key === 'ArrowRight' && player.x + player.width < canvas.width) {
-    player.x += player.speed;
-  } else if (event.key === 'ArrowLeft' && player.x > 0) {
-    player.x -= player.speed;
-  }
+document.addEventListener('mousedown', function () {
+  isMousePressed = true;
+  targetX = event.clientX;
+  targetY = event.clientY;
+});
+
+document.addEventListener('mouseup', function () {
+  isMousePressed = false;
 });
 
 gameLoop();
