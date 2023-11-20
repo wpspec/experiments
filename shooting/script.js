@@ -16,6 +16,8 @@ let enemies = [];
 
 let score = 0;
 
+let moveEnemyDown = false;
+
 function drawPlayer() {
   ctx.fillStyle = player.color;
   ctx.fillRect(player.x, player.y, player.width, player.height);
@@ -44,20 +46,32 @@ function moveBullets() {
 
 function moveEnemies() {
   for (const enemy of enemies) {
-    enemy.x -= enemy.speed;
+    if (moveEnemyDown) {
+      enemy.y += enemy.speed;
+    } else {
+      enemy.x -= enemy.speed;
+      if (enemy.x < 0) {
+        enemy.x = 0;
+      }
+    }
   }
   enemies = enemies.filter(enemy => enemy.x + enemy.width > 0);
 }
 
 function spawnEnemy() {
-  const newEnemy = {
-    x: canvas.width,
-    y: Math.floor(Math.random() * canvas.height - 50),
-    width: 50,
-    height: 50,
-    speed: 2,
-  };
-  enemies.push(newEnemy);
+  const distanceThreshold = 200;
+  const lastEnemy = enemies[enemies.length - 1];
+
+  if (!lastEnemy || (lastEnemy.x + lastEnemy.width) < (canvas.width - distanceThreshold)) {
+    const newEnemy = {
+      x: canvas.width - 50,
+      y: Math.floor(Math.random() * canvas.height - 50),
+      width: 50,
+      height: 50,
+      speed: 2,
+    };
+    enemies.push(newEnemy);
+  }  
 }
 
 function collisionDetection() {
@@ -83,6 +97,7 @@ function resetGame() {
   bullets.length = 0;
   enemies.length = 0;
   score = 0;
+  moveEnemyDown = false;
 }
 
 function displayScore() {
@@ -104,6 +119,10 @@ function gameLoop() {
 
   if (player.y < 0 || player.y + player.height > canvas.height) {
     resetGame();
+  }
+
+  if (Date.now() % 2000 < 20) {
+    moveEnemyDown = !moveEnemyDown;
   }
 
   requestAnimationFrame(gameLoop);
