@@ -2,7 +2,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 const player = {
-  x: 50,
+  x: canvas.width / 2,
   y: canvas.height - 30,
   width: 20,
   height: 20,
@@ -10,14 +10,19 @@ const player = {
   speed: 0.05,
 };
 
-const minion = {
-  x: canvas.width - 50,
-  y: canvas.height - 30,
-  width: 20,
-  height: 20,
-  color: '#F00',
-  speed: 2,
-};
+const minions = [];
+const minionCount = 7;
+
+for (let i = 0; i < minionCount; i++) {
+  minions.push({
+    x: canvas.width - 50,
+    y: canvas.height - 30,
+    width: 20,
+    height: 20,
+    color: '#F00',
+    speed: 2,
+  });
+}
 
 let isMousePressed = false;
 let targetX = canvas.width / 2;
@@ -28,9 +33,12 @@ function drawPlayer() {
   ctx.fillRect(player.x - player.width / 2, player.y - player.height / 2, player.width, player.height);
 }
 
-function drawMinion() {
-  ctx.fillStyle = minion.color;
-  ctx.fillRect(minion.x, minion.y, minion.width, minion.height);
+function drawMinions() {
+  for (const minion of minions) {
+    ctx.fillStyle = minion.color;
+    ctx.fillRect(minion.x, minion.y, minion.width, minion.height);
+  }
+  
 }
 
 function update() {
@@ -38,26 +46,35 @@ function update() {
   player.x = lerp(player.x, targetX, player.speed);
   player.y = lerp(player.y, targetY, player.speed);
 
-  minion.x -= minion.speed;
-
-  if (
-    player.x - player.width / 2 < minion.x + minion.width &&
-    player.x + player.width / 2 > minion.x &&
-    player.y - player.height / 2 < minion.y + minion.height &&
-    player.y + player.height / 2 > minion.y
-  ) {
-    alert('Minion caught! You got it!');
-    resetMinion();
+  for (const minion of minions) {
+    minion.x -= minion.speed;
   }
 
-  if (minion.x <= 0) {
-    alert('Minion escaped! You missed the last hit!');
-    resetMinion();
+  for (const minion of minions) {
+    if (
+      player.x - player.width / 2 < minion.x + minion.width &&
+      player.x + player.width / 2 > minion.x &&
+      player.y - player.height / 2 < minion.y + minion.height &&
+      player.y + player.height / 2 > minion.y
+    ) {
+      resetMinions();
+    }
   }
+
+  for (const minion of minions) {
+    if (minion.x <= 0) {
+      resetMinions();
+      break;
+    }
+  }
+  
 }
 
-function resetMinion() {
-  minion.x = canvas.width - 50;
+function resetMinions() {
+  const initialX = canvas.width - 50;
+  for (let i = 0; i < minionCount; i++) {
+    minions[i].x = initialX - i * 30;
+  }
 }
 
 function lerp(start, end, t) {
@@ -68,7 +85,7 @@ function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   drawPlayer();
-  drawMinion();
+  drawMinions();
 
   update();
 
