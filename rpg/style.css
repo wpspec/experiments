@@ -11,3 +11,11 @@ body {
   margin: 10px;
   display: inline-block;
 }
+
+.button-container {
+  margin-top: 10px;
+}
+
+button {
+  margin: 5px;
+}

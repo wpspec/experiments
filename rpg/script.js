@@ -12,18 +12,24 @@ function explore() {
     document.getElementById("result").innerHTML = "You found a treasure! +10 experience.";  
   } else {
     document.getElementById("result").innerHTML  = "You encounter a monster!";
-
-    let decision = confirm("Do you want to fight the monster?");
-
-    if (decision) {
-      simulateBattle();
-    } else {
-      player.health -= 10;
-      document.getElementById("result").innerHTML += "<br>You ran away but got injured. -10 health.";
-    }
+    document.getElementById("button-container").style.display = "block";
   }
 
   updateStats();
+}
+
+function fight() {
+  simulateBattle();
+  document.getElementById("button-container").style.display = "none";
+  checkGameOver();
+}
+
+function runAway() {
+  player.health -= 10;
+  document.getElementById("result").innerHTML += "<br>You ran away but got injured. -10 health.";
+  document.getElementById("button-container").style.display = "none";
+  updateStats();
+  checkGameOver();
 }
 
 function simulateBattle() {
@@ -37,6 +43,8 @@ function simulateBattle() {
     player.health -= 15;
     document.getElementById("result").innerHTML += "<br>You were defeated. -15 health.";
   }
+
+  updateStats();
 }
 
 function updateStats() {
@@ -45,4 +53,11 @@ function updateStats() {
     "Name: " + player.name + 
     ", Health: " + player.health + 
     ", Experience: " + player.experience;
+}
+
+function checkGameOver() {
+  if (player.health <= 0) {
+    document.getElementById("result").innerHTML += "<br>Game Over! Your health reached 0.";
+    document.getElementById("exploreButton").style.display = "none";
+  }
 }
