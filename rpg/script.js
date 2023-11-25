@@ -1,7 +1,8 @@
 let player = {
   name: "Player",
   health: 100,
-  experience: 0
+  experience: 0,
+  level: 1
 };
 
 function explore() {
@@ -13,6 +14,7 @@ function explore() {
   } else {
     document.getElementById("result").innerHTML  = "You encounter a monster!";
     document.getElementById("button-container").style.display = "block";
+    document.getElementBYId("exploreButton").style.display = "none";
   }
 
   updateStats();
@@ -22,6 +24,7 @@ function fight() {
   simulateBattle();
   document.getElementById("button-container").style.display = "none";
   checkGameOver();
+  checkLevelUp();
 }
 
 function runAway() {
@@ -30,10 +33,11 @@ function runAway() {
   document.getElementById("button-container").style.display = "none";
   updateStats();
   checkGameOver();
+  checkLevelUp();
 }
 
 function simulateBattle() {
-  let playerAttack = Math.floor(Math.random() * 20) + 1;
+  let playerAttack = Math.floor(Math.random() * (20 + player.level)) + 1;
   let enemyAttack = Math.floor(Math.random() * 20) + 1;
 
   if (playerAttack > enemyAttack) {
@@ -52,12 +56,22 @@ function updateStats() {
     "Player Stats: " + 
     "Name: " + player.name + 
     ", Health: " + player.health + 
-    ", Experience: " + player.experience;
+    ", Experience: " + player.experience +
+    ", Level: " + player.level;
 }
 
 function checkGameOver() {
   if (player.health <= 0) {
     document.getElementById("result").innerHTML += "<br>Game Over! Your health reached 0.";
     document.getElementById("exploreButton").style.display = "none";
+  }
+}
+
+function checkLevelUp() {
+  if (player.experience >= player.level * 100 && player.level < 100) {
+    player.level++;
+    player.health += 5;
+    document.getElementById("result").innerHTML += "<br>Congratulations! You leveled up to level " + 
+    player.level + ". +5 health.";
   }
 }
