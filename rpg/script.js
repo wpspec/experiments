@@ -80,7 +80,7 @@ function runAway() {
 }
 
 function simulateBattle(monster) {
-  let playerAttack = Math.floor(Math.random() * (20 + player.level)) + 1;
+  let playerAttack = Math.floor(Math.random() * (45 + player.level)) + 1;
   let monsterAttack = Math.floor(Math.random() * monster.damage) + 1;
 
   if (playerAttack > monsterAttack) {
