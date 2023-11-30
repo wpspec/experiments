@@ -4,20 +4,21 @@ let player = {
   maxHealth: 100,
   experience: 0,
   level: 1,
-  gold: 0
+  gold: 0,
+  agility: 5
 };
 
 let currentMonster = null;
 
-let monsters = [
-  { name: "Slime 🤢", damage: 15 },
-  { name: "Goblin 👹", damage: 30 },
-  { name: "Orc 💀", damage: 50 }
+let enemies = [
+  { name: "Slime 🤢", health: 40, currentHealth: 40, damage: 15, agility: 1 },
+  { name: "Goblin 👹", health: 60, currentHealth: 60, damage: 30, agility: 5 },
+  { name: "Orc 💀", health: 80, currentHealth: 80, damage: 50, agility: 7 }
 ];
 
-function getRandomMonster() {
-  let randomIndex = Math.floor(Math.random() * monsters.length);
-  return monsters[randomIndex];
+function getRandomEnemy() {
+  let randomIndex = Math.floor(Math.random() * enemies.length);
+  return enemies[randomIndex];
 }
 
 function explore() {
@@ -26,14 +27,13 @@ function explore() {
   if (randomNumber < 0.5) {
     player.gold += 10;
     document.getElementById("result").innerHTML = "You found a treasure! +10 gold.";
-    currentMonster = null;  
+    currentMonster = null;
   } else {
-    currentMonster = getRandomMonster();
-    document.getElementById("result").innerHTML = "You encoutered a/an " + currentMonster.name + "!";
+    currentMonster = getRandomEnemy();
+    document.getElementById("result").innerHTML = "You encountered a/an " + currentMonster.name + "!";
 
     document.getElementById("exploreButton").style.display = "none";
     document.getElementById("button-container").style.display = "block";
-
   }
 
   updateStats();
@@ -46,7 +46,7 @@ function buyPotion() {
     if (player.currentHealth > player.maxHealth) {
       player.currentHealth = player.maxHealth;
     }
-    document.getElementById("result").innerHTML = "You bought a potion for 20 gold. +25 health.";    
+    document.getElementById("result").innerHTML = "You bought a potion for 20 gold. +25 health.";
   } else {
     document.getElementById("result").innerHTML = "You don't have enough gold to buy a potion.";
   }
@@ -56,7 +56,12 @@ function buyPotion() {
 
 function fight() {
   if (currentMonster) {
-    simulateBattle(currentMonster);
+    if (player.agility >= currentMonster.agility) {
+      simulateBattle(player, currentMonster);
+    } else {
+      simulateBattle(currentMonster, player);
+    }
+
     document.getElementById("button-container").style.display = "none";
     document.getElementById("exploreButton").style.display = "inline-block";
     checkGameOver();
@@ -79,41 +84,35 @@ function runAway() {
   }
 }
 
-function simulateBattle(monster) {
-  let playerAttack = Math.floor(Math.random() * (45 + player.level)) + 1;
-  let monsterAttack = Math.floor(Math.random() * monster.damage) + 1;
+function simulateBattle(attacker, defender = {}) {
+  let attackerAttack = Math.floor(Math.random() * (20 + attacker.level)) + 1;
+  let defenderAttack = Math.floor(Math.random() * defender.agility) + 1;
 
-  if (playerAttack > monsterAttack) {
-    player.experience += 20;
-    document.getElementById("result").innerHTML += "<br>You defeated the monster! +20 experience.";
-  } else {
-    player.currentHealth -= monster.damage;
-    if (player.currentHealth < 0) {
-      player.currentHealth = 0;
+  if (attackerAttack > defenderAttack) {
+    defender.currentHealth -= attacker.damage;
+    if (defender.currentHealth < 0) {
+      defender.currentHealth = 0;
     }
-    document.getElementById("result").innerHTML += "<br>You were defeated by the " + monster.name + 
-      ". -" + monster.damage + " health.";
+    document.getElementById("result").innerHTML += `<br>${attacker.name} struck first! ${defender.name} took ${attacker.damage} damage. ${defender.name}'s health: ${defender.currentHealth}/${defender.health}.`;
+  } else {
+    attacker.currentHealth -= defender.damage;
+    if (attacker.currentHealth < 0) {
+      attacker.currentHealth = 0;
+    }
+    document.getElementById("result").innerHTML += `<br>${defender.name} struck first! ${attacker.name} took ${defender.damage} damage. ${attacker.name}'s health: ${attacker.currentHealth}/${attacker.maxHealth}.`;
   }
 
   updateStats();
 }
 
 function updateStats() {
-  document.getElementById("result").innerHTML += "<br>" + 
-    "Player Stats: " + 
-    "Name: " + player.name + 
-    ", Health: " + player.currentHealth + 
-    "/" + player.maxHealth +
-    ", Experience: " + player.experience +
-    ", Level: " + player.level +
-    ", Gold: " + player.gold;
+  document.getElementById("result").innerHTML += `<br>Player Stats: Name: ${player.name}, Current Health: ${player.currentHealth}/${player.maxHealth}, Experience: ${player.experience}, Level: ${player.level}, Gold: ${player.gold}, Agility: ${player.agility}`;
 }
 
 function checkGameOver() {
   if (player.currentHealth <= 0) {
     document.getElementById("result").innerHTML += "<br>Game Over! Your health reached 0.";
     document.getElementById("exploreButton").style.display = "none";
-    document.getElementById("buyPotionButton").disabled = true;
   }
 }
 
@@ -123,8 +122,7 @@ function checkLevelUp() {
     player.maxHealth += 5;
     player.currentHealth = player.maxHealth;
     player.experience = 0;
-    document.getElementById("result").innerHTML += "<br>Congratulations! You leveled up to level " + 
-    player.level + ". Maximum health increased to " + player.maxHealth + ".";
+    document.getElementById("result").innerHTML += `<br>Congratulations! You leveled up to level ${player.level}. Maximum health increased to ${player.maxHealth}.`;
   }
 }
 
