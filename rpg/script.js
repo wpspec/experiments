@@ -5,7 +5,8 @@ let player = {
   experience: 0,
   level: 1,
   gold: 0,
-  agility: 5
+  agility: 5,
+  damage: 15
 };
 
 let currentMonster = null;
@@ -62,12 +63,11 @@ function fight() {
       simulateBattle(currentMonster, player);
     }
 
-    document.getElementById("button-container").style.display = "none";
-    document.getElementById("exploreButton").style.display = "inline-block";
     checkGameOver();
     checkLevelUp();
   }
 }
+
 
 function runAway() {
   if (currentMonster) {
@@ -76,8 +76,6 @@ function runAway() {
       player.currentHealth = 0;
     }
     document.getElementById("result").innerHTML += "<br>You ran away but got injured. -10 health.";
-    document.getElementById("button-container").style.display = "none";
-    document.getElementById("exploreButton").style.display = "inline-block";
     updateStats();
     checkGameOver();
     checkLevelUp();
@@ -85,25 +83,49 @@ function runAway() {
 }
 
 function simulateBattle(attacker, defender = {}) {
-  let attackerAttack = Math.floor(Math.random() * (20 + attacker.level)) + 1;
-  let defenderAttack = Math.floor(Math.random() * defender.agility) + 1;
+  // Check agility to determine who strikes first
+  let firstStriker = attacker.agility >= defender.agility ? attacker : defender;
+  let secondStriker = firstStriker === attacker ? defender : attacker;
 
-  if (attackerAttack > defenderAttack) {
-    defender.currentHealth -= attacker.damage;
-    if (defender.currentHealth < 0) {
-      defender.currentHealth = 0;
+  // Calculate attacks
+  let firstStrikerAttack = Math.floor(Math.random() * (20 + firstStriker.level)) + 1;
+  let secondStrikerAttack = Math.floor(Math.random() * secondStriker.agility) + 1;
+
+  // Get the damage value from the attacker
+  let damage = (firstStriker === attacker ? attacker.damage : defender.damage);
+
+  // Apply damage based on the results of the attacks
+  if (firstStrikerAttack > secondStrikerAttack) {
+    secondStriker.health -= damage;
+    if (secondStriker.health <= 0) {
+      secondStriker.health = 0;
+      // Enemy defeated, reset state
+      currentMonster = null;
+      document.getElementById("exploreButton").style.display = "inline-block";
     }
-    document.getElementById("result").innerHTML += `<br>${attacker.name} struck first! ${defender.name} took ${attacker.damage} damage. ${defender.name}'s health: ${defender.currentHealth}/${defender.health}.`;
+    document.getElementById("result").innerHTML += `<br>${firstStriker.name} struck first! ${secondStriker.name} took ${damage} damage. ${secondStriker.name}'s health: ${secondStriker.health}.`;
   } else {
-    attacker.currentHealth -= defender.damage;
-    if (attacker.currentHealth < 0) {
-      attacker.currentHealth = 0;
+    firstStriker.health -= damage;
+    if (firstStriker.health <= 0) {
+      firstStriker.health = 0;
+      // Enemy defeated, reset state
+      currentMonster = null;
+      document.getElementById("exploreButton").style.display = "inline-block";
     }
-    document.getElementById("result").innerHTML += `<br>${defender.name} struck first! ${attacker.name} took ${defender.damage} damage. ${attacker.name}'s health: ${attacker.currentHealth}/${attacker.maxHealth}.`;
+    document.getElementById("result").innerHTML += `<br>${secondStriker.name} struck first! ${firstStriker.name} took ${damage} damage. ${firstStriker.name}'s health: ${firstStriker.health}.`;
   }
 
   updateStats();
+
+  // Check if the enemy's health is less than or equal to 0
+  if (defender.health <= 0) {
+    // Enemy defeated, hide the buttons
+    document.getElementById("button-container").style.display = "none";
+  } else {
+    document.getElementById("button-container").style.display = "block";
+  }
 }
+
 
 function updateStats() {
   document.getElementById("result").innerHTML += `<br>Player Stats: Name: ${player.name}, Current Health: ${player.currentHealth}/${player.maxHealth}, Experience: ${player.experience}, Level: ${player.level}, Gold: ${player.gold}, Agility: ${player.agility}`;
