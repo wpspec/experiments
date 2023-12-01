@@ -83,52 +83,40 @@ function runAway() {
 }
 
 function simulateBattle(attacker, defender = {}) {
-  // Check agility to determine who strikes first
+  let damage = attacker.damage;
+
   let firstStriker = attacker.agility >= defender.agility ? attacker : defender;
   let secondStriker = firstStriker === attacker ? defender : attacker;
 
-  // Calculate attacks
-  let firstStrikerAttack = Math.floor(Math.random() * (20 + firstStriker.level)) + 1;
-  let secondStrikerAttack = Math.floor(Math.random() * secondStriker.agility) + 1;
+  if (secondStriker.currentHealth <= 0) {
+    document.getElementById("result").innerHTML += `<br>${firstStriker.name} struck first! ${secondStriker.name} is already defeated.`;
+  } else {
+    secondStriker.currentHealth -= damage;
 
-  // Get the damage value from the attacker
-  let damage = (firstStriker === attacker ? attacker.damage : defender.damage);
+    document.getElementById("result").innerHTML += `<br>${firstStriker.name} struck first! ${secondStriker.name} took ${damage} damage. ${secondStriker.name}'s health: ${secondStriker.currentHealth}.`;
 
-  // Apply damage based on the results of the attacks
-  if (firstStrikerAttack > secondStrikerAttack) {
-    secondStriker.health -= damage;
-    if (secondStriker.health <= 0) {
-      secondStriker.health = 0;
-      // Enemy defeated, reset state
+    updateStats();
+
+    if (secondStriker.currentHealth <= 0) {
       currentMonster = null;
       document.getElementById("exploreButton").style.display = "inline-block";
+      document.getElementById("button-container").style.display = "none";
+    } else {
+      document.getElementById("button-container").style.display = "block";
     }
-    document.getElementById("result").innerHTML += `<br>${firstStriker.name} struck first! ${secondStriker.name} took ${damage} damage. ${secondStriker.name}'s health: ${secondStriker.health}.`;
-  } else {
-    firstStriker.health -= damage;
-    if (firstStriker.health <= 0) {
-      firstStriker.health = 0;
-      // Enemy defeated, reset state
-      currentMonster = null;
-      document.getElementById("exploreButton").style.display = "inline-block";
-    }
-    document.getElementById("result").innerHTML += `<br>${secondStriker.name} struck first! ${firstStriker.name} took ${damage} damage. ${firstStriker.name}'s health: ${firstStriker.health}.`;
-  }
-
-  updateStats();
-
-  // Check if the enemy's health is less than or equal to 0
-  if (defender.health <= 0) {
-    // Enemy defeated, hide the buttons
-    document.getElementById("button-container").style.display = "none";
-  } else {
-    document.getElementById("button-container").style.display = "block";
   }
 }
 
-
 function updateStats() {
-  document.getElementById("result").innerHTML += `<br>Player Stats: Name: ${player.name}, Current Health: ${player.currentHealth}/${player.maxHealth}, Experience: ${player.experience}, Level: ${player.level}, Gold: ${player.gold}, Agility: ${player.agility}`;
+  let playerStatsElement = document.getElementById("player-stats");
+
+  playerStatsElement.innerHTML = `Player Stats: 
+    Name: ${player.name}, 
+    Current Health: ${player.currentHealth}/${player.maxHealth}, 
+    Experience: ${player.experience}, 
+    Level: ${player.level}, 
+    Gold: ${player.gold}, 
+    Agility: ${player.agility}`;
 }
 
 function checkGameOver() {
@@ -147,9 +135,3 @@ function checkLevelUp() {
     document.getElementById("result").innerHTML += `<br>Congratulations! You leveled up to level ${player.level}. Maximum health increased to ${player.maxHealth}.`;
   }
 }
-
-document.addEventListener('keydown', function (event) {
-  if (event.key === ' ') {
-    explore();
-  }
-});
