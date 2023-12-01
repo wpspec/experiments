@@ -17,6 +17,8 @@ let enemies = [
   { name: "Orc 💀", health: 80, currentHealth: 80, damage: 50, agility: 7 }
 ];
 
+let playerDefeatedCurrentMonster = false;
+
 function getRandomEnemy() {
   let randomIndex = Math.floor(Math.random() * enemies.length);
   return enemies[randomIndex];
@@ -29,12 +31,17 @@ function explore() {
     player.gold += 10;
     document.getElementById("result").innerHTML = "You found a treasure! +10 gold.";
     currentMonster = null;
+    playerDefeatedCurrentMonster = false;
   } else {
     currentMonster = getRandomEnemy();
+    playerDefeatedCurrentMonster = false;
+
     document.getElementById("result").innerHTML = "You encountered a/an " + currentMonster.name + "!";
 
     document.getElementById("exploreButton").style.display = "none";
     document.getElementById("button-container").style.display = "block";
+
+    updateStats(); // Add this line to update the stats after encountering a new monster
   }
 
   updateStats();
@@ -88,21 +95,27 @@ function simulateBattle(attacker, defender = {}) {
   let firstStriker = attacker.agility >= defender.agility ? attacker : defender;
   let secondStriker = firstStriker === attacker ? defender : attacker;
 
-  if (secondStriker.currentHealth <= 0) {
-    document.getElementById("result").innerHTML += `<br>${firstStriker.name} struck first! ${secondStriker.name} is already defeated.`;
-  } else {
-    secondStriker.currentHealth -= damage;
-    document.getElementById("result").innerHTML += `<br>${firstStriker.name} struck first! ${secondStriker.name} took ${damage} damage. ${secondStriker.name}'s health: ${secondStriker.currentHealth}.`;
-
-    updateStats();
-
-    if (secondStriker.currentHealth <= 0) {
-      currentMonster = null;
-      document.getElementById("exploreButton").style.display = "inline-block";
-      document.getElementById("button-container").style.display = "none";
-    } else {
-      enemyStrikeBack(secondStriker, firstStriker);
+  if (defender.currentHealth <= 0) {
+    if (playerDefeatedCurrentMonster) {
+      document.getElementById("result").innerHTML += `<br>${attacker.name} struck first! ${defender.name} is already defeated.`;
+    return; // Exit early when defender is already defeated
     }
+    currentMonster = null;
+    playerDefeatedCurrentMonster = true;
+  }
+
+  // Continue with the battle logic
+  secondStriker.currentHealth -= damage;
+  document.getElementById("result").innerHTML += `<br>${firstStriker.name} struck first! ${secondStriker.name} took ${damage} damage. ${secondStriker.name}'s health: ${secondStriker.currentHealth}.`;
+
+  updateStats();
+
+  if (secondStriker.currentHealth <= 0) {
+    currentMonster = null;
+    document.getElementById("exploreButton").style.display = "inline-block";
+    document.getElementById("button-container").style.display = "none";
+  } else {
+    enemyStrikeBack(secondStriker, firstStriker);
   }
 }
 
