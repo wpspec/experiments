@@ -102,8 +102,24 @@ function simulateBattle(attacker, defender = {}) {
       document.getElementById("exploreButton").style.display = "inline-block";
       document.getElementById("button-container").style.display = "none";
     } else {
-      document.getElementById("button-container").style.display = "block";
+      enemyStrikeBack(secondStriker, firstStriker);
     }
+  }
+}
+
+function enemyStrikeBack(attacker, defender) {
+  let damage = attacker.damage;
+
+  defender.currentHealth -= damage;
+
+  document.getElementById("result").innerHTML += `<br>${attacker.name} strikes back! ${defender.name} took ${damage} damage. ${defender.name}'s health: ${defender.currentHealth}.`;
+
+  updateStats();
+
+  if (player.currentHealth <= 0) {
+    currentMonster = null;
+    document.getElementById("exploreButton").style.display = "inline-block";
+    document.getElementById("button-container").style.display = "none";
   }
 }
 
