@@ -5,7 +5,7 @@ let player = {
   experience: 0,
   level: 1,
   gold: 0,
-  agility: 5,
+  agility: 100,
   damage: 15
 };
 
@@ -92,7 +92,6 @@ function simulateBattle(attacker, defender = {}) {
     document.getElementById("result").innerHTML += `<br>${firstStriker.name} struck first! ${secondStriker.name} is already defeated.`;
   } else {
     secondStriker.currentHealth -= damage;
-
     document.getElementById("result").innerHTML += `<br>${firstStriker.name} struck first! ${secondStriker.name} took ${damage} damage. ${secondStriker.name}'s health: ${secondStriker.currentHealth}.`;
 
     updateStats();
@@ -110,9 +109,15 @@ function simulateBattle(attacker, defender = {}) {
 function enemyStrikeBack(attacker, defender) {
   let damage = attacker.damage;
 
-  defender.currentHealth -= damage;
+  let evasionChance = (player.agility * 0.01);
+  let isEvaded = Math.random() < evasionChance;
 
-  document.getElementById("result").innerHTML += `<br>${attacker.name} strikes back! ${defender.name} took ${damage} damage. ${defender.name}'s health: ${defender.currentHealth}.`;
+  if (isEvaded){
+    document.getElementById("result").innerHTML += `<br>${defender.name} evaded ${attacker.name}'s attack! No damage taken.`;
+  } else {
+    defender.currentHealth -= damage;
+    document.getElementById("result").innerHTML += `<br>${attacker.name} strikes back! ${defender.name} took ${damage} damage. ${defender.name}'s health: ${defender.currentHealth}.`;
+  }
 
   updateStats();
 
