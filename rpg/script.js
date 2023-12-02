@@ -30,18 +30,19 @@ function explore() {
   if (randomNumber < 0.5) {
     player.gold += 10;
     document.getElementById("result").innerHTML = "You found a treasure! +10 gold.";
+    currentMonster = null;
   } else {
     currentMonster = getRandomEnemy();
-    playerDefeatedCurrentMonster = false;
-
     document.getElementById("result").innerHTML = "You encountered a/an " + currentMonster.name + "!";
-
-     document.getElementById("exploreButton").style.display = "none";
-    document.getElementById("button-container").style.display = "block";
   }
+
+  // Always display the buttons after exploration
+  // document.getElementById("exploreButton").style.display = "none";
+  document.getElementById("button-container").style.display = "block";
 
   updateStats();
 }
+
 
 function buyPotion() {
   if (player.gold >= 20) {
@@ -100,17 +101,26 @@ function simulateBattle(attacker, defender = {}) {
     if (playerDefeatedCurrentMonster) {
       document.getElementById("result").innerHTML += `<br>${attacker.name} struck first! ${defender.name} is already defeated.`;
       currentMonster = null;
+      playerDefeatedCurrentMonster = true;
       return;
     }
   }
 
   secondStriker.currentHealth -= damage;
+
+  if (secondStriker.currentHealth < 0) {
+    secondStriker.currentHealth = 0;
+  }
+
   document.getElementById("result").innerHTML += `<br>${firstStriker.name} struck first! ${secondStriker.name} took ${damage} damage. ${secondStriker.name}'s health: ${secondStriker.currentHealth}.`;
 
   updateStats();
 
   if (secondStriker.currentHealth <= 0) {
+	  currentMonster.currentHealth += currentMonster.health;
     currentMonster = null;
+    player.gold += 5;
+    player.experience += 5;
     document.getElementById("exploreButton").style.display = "inline-block";
     document.getElementById("button-container").style.display = "none";
   } else {
@@ -150,6 +160,12 @@ function updateStats() {
     Level: ${player.level}, 
     Gold: ${player.gold}, 
     Agility: ${player.agility}`;
+
+  if (currentMonster && player.currentHealth > 0) {
+    document.getElementById("button-container").style.display = "block";
+  } else {
+    document.getElementById("button-container").style.display = "none";
+  }
 }
 
 function checkGameOver() {
