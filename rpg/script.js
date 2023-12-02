@@ -121,6 +121,9 @@ function simulateBattle(attacker, defender = {}) {
     currentMonster = null;
     player.gold += 5;
     player.experience += 5;
+
+    document.getElementById("result").innerHTML += `<br>You defeated the ${defender.name}. You earned 5 gold & 5 experience!`;
+
     document.getElementById("exploreButton").style.display = "inline-block";
     document.getElementById("button-container").style.display = "none";
   } else {
