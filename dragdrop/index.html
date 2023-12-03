@@ -41,6 +41,24 @@
       ev.dataTransfer.setData("text", ev.target.id);
     }
 
+    function dragging(ev) {
+
+      var mouseX = ev.clientX;
+      var mouseY = ev.clientY;
+
+      var dropArea = document.getElementById("dropArea").getBoundingClientRect();
+      var dropAreaLeft = dropArea.left;
+      var dropAreaTop = dropArea.top;
+      var dropAreaRight = dropArea.right;
+      var dropAreaBottom = dropArea.bottom;
+
+      if (mouseX >= dropAreaLeft && mouseX <= dropAreaRight && mouseY >= dropAreaTop && mouseY <= dropAreaBottom) {
+	document.getElementById("message").innerText = "+5 Strength";
+      } else {
+	document.getElementById("message").innerText = "";
+      }
+    }
+
     function allowDrop(ev) {
       ev.preventDefault();
     }
@@ -50,11 +68,8 @@
       var data = ev.dataTransfer.getData("text");
       var draggedElement = document.getElementById(data);
 
-      if (ev.target.id === "dropArea") {
-	document.getElementById("message").innerText = "+5 Strength";
+      // ev.target.appendChild(draggedElement);
 
-	ev.target.appendChild(draggedElement);
-      }
     }
   </script>
 </body>
