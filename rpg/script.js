@@ -5,8 +5,9 @@ let player = {
   experience: 0,
   level: 1,
   gold: 0,
-  agility: 100,
-  damage: 15
+  agility: 20,
+  damage: 15,
+  strikePotionActive: true
 };
 
 let currentMonster = null;
@@ -44,16 +45,29 @@ function explore() {
 }
 
 
-function buyPotion() {
-  if (player.gold >= 20) {
-    player.gold -= 20;
+function buyHealthPotion() {
+  if (player.gold >= 10) {
+    player.gold -= 10;
     player.currentHealth += 25;
     if (player.currentHealth > player.maxHealth) {
       player.currentHealth = player.maxHealth;
     }
-    document.getElementById("result").innerHTML = "You bought a potion for 20 gold. +25 health.";
+    document.getElementById("result").innerHTML = "You bought a Health Potion for 10 gold. +25 health.";
   } else {
-    document.getElementById("result").innerHTML = "You don't have enough gold to buy a potion.";
+    document.getElementById("result").innerHTML = "You don't have enough gold to buy a Health Potion.";
+  }
+
+  updateStats();
+}
+
+function buyStrikePotion() {
+  if (player.gold >= 20) {
+    player.gold -= 10;
+
+    player.strikePotionActive = true;
+    document.getElementById("result").innerHTML = "You bought a Strike Potion for 10 gold. Your next attack will deal 200% damage!";
+  } else {
+    document.getElementById("result").innerHTML = "You don't have enough gold to buy a Strike Potion.";
   }
 
   updateStats();
@@ -74,6 +88,8 @@ function fight() {
       document.getElementById("exploreButton").style.display = "none";
       document.getElementById("button-container").style.display = "block";
     }
+
+    player.strikePotionActive = false;
   }
 }
 
@@ -93,6 +109,10 @@ function runAway() {
 
 function simulateBattle(attacker, defender = {}) {
   let damage = attacker.damage;
+
+  if (attacker === player && player.strikePotionActive) {
+    damage *= 2;
+  }
 
   let firstStriker = attacker.agility >= defender.agility ? attacker : defender;
   let secondStriker = firstStriker === attacker ? defender : attacker;
@@ -119,10 +139,10 @@ function simulateBattle(attacker, defender = {}) {
   if (secondStriker.currentHealth <= 0) {
 	  currentMonster.currentHealth += currentMonster.health;
     currentMonster = null;
-    player.gold += 5;
-    player.experience += 5;
+    player.gold += 10;
+    player.experience += 15;
 
-    document.getElementById("result").innerHTML += `<br>You defeated the ${defender.name}. You earned 5 gold & 5 experience!`;
+    document.getElementById("result").innerHTML += `<br>You defeated the ${defender.name}. You earned 10 gold & 15 experience!`;
 
     document.getElementById("exploreButton").style.display = "inline-block";
     document.getElementById("button-container").style.display = "none";
@@ -183,6 +203,7 @@ function checkLevelUp() {
     player.level++;
     player.maxHealth += 5;
     player.currentHealth = player.maxHealth;
+    player.agility += 5;
     player.experience = 0;
     document.getElementById("result").innerHTML += `<br>Congratulations! You leveled up to level ${player.level}. Maximum health increased to ${player.maxHealth}.`;
   }
