@@ -9,10 +9,13 @@ let player = {
   damage: 15,
   strikePotionActive: false,
   ironSwordBought: false,
+};
+
+let ironSwordUpgrades = {
   doubleStrike: false,
   lifesteal: false,
   midasTouch: false
-};
+}
 
 let currentMonster = null;
 let playerDefeatedCurrentMonster = false;
@@ -41,8 +44,6 @@ function explore() {
     document.getElementById("result").innerHTML = "You encountered a/an " + currentMonster.name + "!";
   }
 
-  // Always display the buttons after exploration
-  // document.getElementById("exploreButton").style.display = "none";
   document.getElementById("button-container").style.display = "block";
 
   updateStats();
@@ -102,6 +103,7 @@ function upgradeIronSword(upgradeType) {
       break;
     case 'lifesteal':
       buyIronSwordUpgrade(100, 'lifesteal', 'You upgraded your Iron Sword. Lifesteal unlocked!');
+      ironSwordUpgrades.lifesteal = true;
       break;
     case 'midasTouch':
       buyIronSwordUpgrade(150, 'midasTouch', 'You upgraded your Iron Sword. Midas Touch unlocked!');
@@ -165,8 +167,6 @@ function simulateBattle(attacker, defender = {}) {
     damage *= 2;
   }
 
-  console.log(player.strikePotionActive);
-
   let firstStriker = attacker.agility >= defender.agility ? attacker : defender;
   let secondStriker = firstStriker === attacker ? defender : attacker;
 
@@ -179,6 +179,8 @@ function simulateBattle(attacker, defender = {}) {
     }
   }
 
+  
+
   secondStriker.currentHealth -= damage;
 
   if (secondStriker.currentHealth < 0) {
@@ -186,6 +188,15 @@ function simulateBattle(attacker, defender = {}) {
   }
 
   document.getElementById("result").innerHTML += `<br>${firstStriker.name} struck first! ${secondStriker.name} took ${damage} damage. ${secondStriker.name}'s health: ${secondStriker.currentHealth}.`;
+
+  if (attacker === player && ironSwordUpgrades.lifesteal) {
+    let lifestealAmount = Math.floor(0.25 * damage);
+    player.currentHealth += lifestealAmount;
+    document.getElementById("result").innerHTML += `<br>Lifesteal! You healed for ${lifestealAmount} health.`;
+    if (player.currentHealth > player.maxHealth) {
+      player.currentHealth = player.maxHealth;
+    }
+  }
 
   updateStats();
 
