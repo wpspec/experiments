@@ -8,7 +8,10 @@ let player = {
   agility: 20,
   damage: 15,
   strikePotionActive: false,
-  ironSwordBought: false
+  ironSwordBought: false,
+  doubleStrike: false,
+  lifesteal: false,
+  midasTouch: false
 };
 
 let currentMonster = null;
@@ -89,6 +92,35 @@ function buyIronSword() {
     }
   } else {
     document.getElementById("result").innerHTML = "You already bought an Iron Sword.";
+  }
+}
+
+function upgradeIronSword(upgradeType) {
+  switch (upgradeType) {
+    case 'doubleStrike':
+      buyIronSwordUpgrade(50, 'doubleStrike', 'You upgraded your Iron Sword. Double Strike unlocked!');
+      break;
+    case 'lifesteal':
+      buyIronSwordUpgrade(100, 'lifesteal', 'You upgraded your Iron Sword. Lifesteal unlocked!');
+      break;
+    case 'midasTouch':
+      buyIronSwordUpgrade(150, 'midasTouch', 'You upgraded your Iron Sword. Midas Touch unlocked!');
+      break;
+    default:
+      break;
+  }
+}
+
+function buyIronSwordUpgrade(cost, upgradeType, successMessage) {
+  if (player.gold >= cost && !player[upgradeType]) {
+    player.gold -= cost;
+    player[upgradeType] = true;
+    document.getElementById("result").innerHTML = successMessage;
+    updateStats();
+  } else if (player[upgradeType]) {
+    document.getElementById("result").innerHTML = `You already have the ${upgradeType} upgrade.`;
+  } else {
+    document.getElementById("result").innerHTML = `You don't have enough gold to buy the ${upgradeType} upgrade.`;
   }
 }
 
@@ -210,6 +242,10 @@ function updateStats() {
     document.getElementById("button-container").style.display = "block";
   } else {
     document.getElementById("button-container").style.display = "none";
+  }
+
+  if (player.ironSwordBought) {
+    document.getElementById("ironSwordUpgrades").style.display = "block";
   }
 }
 
