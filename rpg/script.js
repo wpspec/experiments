@@ -7,7 +7,8 @@ let player = {
   gold: 0,
   agility: 20,
   damage: 15,
-  strikePotionActive: true
+  strikePotionActive: false,
+  ironSwordBought: false
 };
 
 let currentMonster = null;
@@ -73,6 +74,24 @@ function buyStrikePotion() {
   updateStats();
 }
 
+function buyIronSword() {
+  if (!player.ironSwordBought) {
+    if (player.gold >= 50) {
+      player.gold -= 50;
+      player.damage += 10;
+
+      player.ironSwordBought = true;
+
+      document.getElementById("result").innerHTML = "You bought an Iron Sword for 50 gold. Your damage increased by 10.";
+      updateStats();
+    } else {
+      document.getElementById("result").innerHTML = "You don't have enough gold to buy an Iron Sword.";
+    }
+  } else {
+    document.getElementById("result").innerHTML = "You already bought an Iron Sword.";
+  }
+}
+
 function fight() {
   if (currentMonster) {
     if (player.agility >= currentMonster.agility) {
@@ -113,6 +132,8 @@ function simulateBattle(attacker, defender = {}) {
   if (attacker === player && player.strikePotionActive) {
     damage *= 2;
   }
+
+  console.log(player.strikePotionActive);
 
   let firstStriker = attacker.agility >= defender.agility ? attacker : defender;
   let secondStriker = firstStriker === attacker ? defender : attacker;
@@ -182,7 +203,8 @@ function updateStats() {
     Experience: ${player.experience}, 
     Level: ${player.level}, 
     Gold: ${player.gold}, 
-    Agility: ${player.agility}`;
+    Agility: ${player.agility},
+    Damage: ${player.damage}`;
 
   if (currentMonster && player.currentHealth > 0) {
     document.getElementById("button-container").style.display = "block";
