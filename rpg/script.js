@@ -4,12 +4,14 @@ let player = {
   maxHealth: 100,
   experience: 0,
   level: 1,
-  gold: 0,
+  gold: 2000,
   agility: 20,
   damage: 15,
   strikePotionActive: false,
   ironSwordBought: false,
 };
+
+let inventory = [];
 
 let ironSwordUpgrades = {
   doubleStrike: false,
@@ -26,6 +28,10 @@ let enemies = [
   { name: "Orc 💀", health: 80, currentHealth: 80, damage: 50, agility: 7 }
 ];
 
+window.addEventListener('load', (event) => {
+  document.getElementById("exploreButton").addEventListener("click", updateInventoryDisplay);
+  updateInventoryDisplay();
+});
 
 function getRandomEnemy() {
   let randomIndex = Math.floor(Math.random() * enemies.length);
@@ -228,18 +234,50 @@ function simulateBattle(attacker, defender = {}) {
   updateStats();
 
   if (secondStriker.currentHealth <= 0) {
-	  currentMonster.currentHealth += currentMonster.health;
+    currentMonster.currentHealth += currentMonster.health;
     currentMonster = null;
     player.gold += 10;
     player.experience += 15;
 
     document.getElementById("result").innerHTML += `<br>You defeated the ${defender.name}. You earned 10 gold & 15 experience!`;
 
+    let dropChance = Math.random();
+    if (dropChance < 0.25) {
+      let item = getEnemySpecificItem(defender.name);
+      inventory.push(item);
+      document.getElementById("result").innerHTML += `<br>${defender.name} dropped ${item}!`;
+    }
+
     document.getElementById("exploreButton").style.display = "inline-block";
     document.getElementById("button-container").style.display = "none";
+
+    updateInventoryDisplay();
   } else {
     enemyStrikeBack(secondStriker, firstStriker);
   }
+}
+
+function getEnemySpecificItem(enemyType) {
+  switch (enemyType) {
+    case "Slime 🤢":
+      return "Slime Core";
+    case "Goblin 👹":
+      return "Shabby Cloth";
+    case "Orc 💀":
+      return "Orc Bones";
+    default:
+      return "Unknown Item";
+  }
+}
+
+function updateInventoryDisplay() {
+  let inventoryListElement = document.getElementById("inventory-list");
+  inventoryListElement.innerHTML = " ";
+
+  inventory.forEach((item) => {
+    let itemCount = inventory.filter((i) => i === item).length;
+    inventoryListElement.innerHTML += `<li>${item} X ${itemCount}</li>`;
+  });
 }
 
 function enemyStrikeBack(attacker, defender) {

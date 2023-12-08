@@ -19,3 +19,8 @@ body {
 button {
   margin: 5px;
 }
+
+#inventory-list {
+  list-style-type: none;
+}
+
