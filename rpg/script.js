@@ -100,6 +100,7 @@ function upgradeIronSword(upgradeType) {
   switch (upgradeType) {
     case 'doubleStrike':
       buyIronSwordUpgrade(50, 'doubleStrike', 'You upgraded your Iron Sword. Double Strike unlocked!');
+      ironSwordUpgrades.doubleStrike = true;
       break;
     case 'lifesteal':
       buyIronSwordUpgrade(100, 'lifesteal', 'You upgraded your Iron Sword. Lifesteal unlocked!');
@@ -107,6 +108,7 @@ function upgradeIronSword(upgradeType) {
       break;
     case 'midasTouch':
       buyIronSwordUpgrade(150, 'midasTouch', 'You upgraded your Iron Sword. Midas Touch unlocked!');
+      ironSwordUpgrades.midasTouch = true;
       break;
     default:
       break;
@@ -196,6 +198,11 @@ function simulateBattle(attacker, defender = {}) {
     if (player.currentHealth > player.maxHealth) {
       player.currentHealth = player.maxHealth;
     }
+  }
+
+  if (attacker === player && ironSwordUpgrades.doubleStrike) {
+    defender.currentHealth -= damage;
+    document.getElementById("result").innerHTML += `<br>Player strikes again for ${damage} damage.`;
   }
 
   updateStats();
