@@ -136,6 +136,7 @@ function fight() {
       simulateBattle(currentMonster, player);
     }
 
+
     checkGameOver();
     checkLevelUp();
 
@@ -161,6 +162,7 @@ function runAway() {
     checkLevelUp();
   }
 }
+
 
 function simulateBattle(attacker, defender = {}) {
   let damage = attacker.damage;
@@ -192,7 +194,7 @@ function simulateBattle(attacker, defender = {}) {
   document.getElementById("result").innerHTML += `<br>${firstStriker.name} struck first! ${secondStriker.name} took ${damage} damage. ${secondStriker.name}'s health: ${secondStriker.currentHealth}.`;
 
   if (attacker === player && ironSwordUpgrades.lifesteal) {
-    let lifestealAmount = Math.floor(0.25 * damage);
+    let lifestealAmount = Math.floor(0.1 * damage);
     player.currentHealth += lifestealAmount;
     document.getElementById("result").innerHTML += `<br>Lifesteal! You healed for ${lifestealAmount} health.`;
     if (player.currentHealth > player.maxHealth) {
@@ -203,7 +205,25 @@ function simulateBattle(attacker, defender = {}) {
   if (attacker === player && ironSwordUpgrades.doubleStrike) {
     defender.currentHealth -= damage;
     document.getElementById("result").innerHTML += `<br>Player strikes again for ${damage} damage.`;
+    if (ironSwordUpgrades.lifesteal) {
+      let lifestealAmount = Math.floor(0.1 * damage);
+      player.currentHealth += lifestealAmount;
+      document.getElementById("result").innerHTML += `<br>Lifesteal! You healed for ${lifestealAmount} health.`;
+      if (player.currentHealth > player.maxHealth) {
+        player.currentHealth = player.maxHealth;
+      }
+    }
   }
+
+  if (attacker === player && ironSwordUpgrades.midasTouch) {
+    let randomNumber = Math.random();
+    if (randomNumber < 0.25) {
+      defender.currentHealth -= defender.health;
+      document.getElementById("result").innerHTML += `<br>Enemy turned to gold! You earned ${defender.health}.`;
+      player.gold += defender.health;
+    }
+  }
+
 
   updateStats();
 
