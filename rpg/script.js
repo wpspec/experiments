@@ -230,8 +230,9 @@ function simulateBattle(attacker, defender = {}) {
     }
   }
 
+
   if (defender.hiddenAbility) {
-    activateHiddenAbility(defender);
+    activateHiddenAbility(attacker, defender);
   }
 
 
@@ -261,7 +262,7 @@ function simulateBattle(attacker, defender = {}) {
   }
 }
 
-function activateHiddenAbility(enemy) {
+function activateHiddenAbility(attacker, enemy) {
   switch (enemy.hiddenAbility) {
     case "Dissolve":
       if (attacker === player && player.ironSwordBought) {
