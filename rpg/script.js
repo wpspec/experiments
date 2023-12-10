@@ -23,7 +23,7 @@ let currentMonster = null;
 let playerDefeatedCurrentMonster = false;
 
 let enemies = [
-  { name: "Slime 🤢", health: 40, currentHealth: 40, damage: 15, agility: 1 },
+  { name: "Slime 🤢", health: 40, currentHealth: 40, damage: 15, agility: 1, hiddenAbility: "Dissolve" },
   { name: "Goblin 👹", health: 60, currentHealth: 60, damage: 30, agility: 5 },
   { name: "Orc 💀", health: 80, currentHealth: 80, damage: 50, agility: 7 }
 ];
@@ -230,6 +230,10 @@ function simulateBattle(attacker, defender = {}) {
     }
   }
 
+  if (defender.hiddenAbility) {
+    activateHiddenAbility(defender);
+  }
+
 
   updateStats();
 
@@ -254,6 +258,21 @@ function simulateBattle(attacker, defender = {}) {
     updateInventoryDisplay();
   } else {
     enemyStrikeBack(secondStriker, firstStriker);
+  }
+}
+
+function activateHiddenAbility(enemy) {
+  switch (enemy.hiddenAbility) {
+    case "Dissolve":
+      if (attacker === player && player.ironSwordBought) {
+	let dissolveChance = Math.random();
+	if (dissolveChance < 0.25) {
+	  player.ironSwordBought = false;
+	  player.damage -= 10;
+	  document.getElementById("result").innerHTML += "<br>The Slime dissolved your Iron Sword!";
+	}
+      }
+      break;
   }
 }
 
@@ -342,3 +361,9 @@ function checkLevelUp() {
     document.getElementById("result").innerHTML += `<br>Congratulations! You leveled up to level ${player.level}. Maximum health increased to ${player.maxHealth}.`;
   }
 }
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Space') {
+    explore();
+  }
+})
