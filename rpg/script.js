@@ -7,6 +7,7 @@ let player = {
   gold: 2000,
   agility: 20,
   damage: 15,
+  defense: 10,
   strikePotionActive: false,
   ironSwordBought: false,
 };
@@ -23,9 +24,9 @@ let currentMonster = null;
 let playerDefeatedCurrentMonster = false;
 
 let enemies = [
-  { name: "Slime 🤢", health: 40, currentHealth: 40, damage: 15, agility: 1, hiddenAbility: "Dissolve" },
-  { name: "Goblin 👹", health: 60, currentHealth: 60, damage: 30, agility: 5 },
-  { name: "Orc 💀", health: 80, currentHealth: 80, damage: 50, agility: 7 }
+  { name: "Slime 🤢", health: 40, currentHealth: 40, damage: 15, agility: 1, defense: 5, hiddenAbility: "Dissolve" },
+  { name: "Goblin 👹", health: 60, currentHealth: 60, damage: 30, agility: 5, defense: 8 },
+  { name: "Orc 💀", health: 80, currentHealth: 80, damage: 50, agility: 7, defense: 12 }
 ];
 
 window.addEventListener('load', (event) => {
@@ -171,7 +172,7 @@ function runAway() {
 
 
 function simulateBattle(attacker, defender = {}) {
-  let damage = attacker.damage;
+  let damage = Math.max(attacker.damage - defender.defense, 0);
 
   if (attacker === player && player.strikePotionActive) {
     damage *= 2;
@@ -325,7 +326,7 @@ function getItemSellValue(item) {
 }
 
 function enemyStrikeBack(attacker, defender) {
-  let damage = attacker.damage;
+  let damage = Math.max(attacker.damage - player.defense, 0);
 
   let evasionChance = (player.agility * 0.01);
   let isEvaded = Math.random() < evasionChance;
@@ -356,7 +357,8 @@ function updateStats() {
     Level: ${player.level}, 
     Gold: ${player.gold}, 
     Agility: ${player.agility},
-    Damage: ${player.damage}`;
+    Damage: ${player.damage}, 
+    Defense: ${player.defense}`;
 
   if (currentMonster && player.currentHealth > 0) {
     document.getElementById("button-container").style.display = "block";
