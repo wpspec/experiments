@@ -364,7 +364,19 @@ function checkLevelUp() {
 }
 
 window.addEventListener('keydown', (event) => {
-  if (event.key === 'Space') {
+  if (event.key === ' ') {
     explore();
+  }
+
+  if (event.key === 'f') {
+    fight();
+  }
+
+  if (event.key === 'd') {
+    runAway();
+  }
+
+  if (event.key === '1') {
+    buyHealthPotion();
   }
 })
