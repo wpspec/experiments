@@ -332,8 +332,25 @@ function updateInventoryDisplay() {
 
   for (let item in itemCounts) {
     let sellButton = `<button onclick="sellItem('${item}')">Sell</button>`;
-    inventoryListElement.innerHTML += `<li>${item} X ${itemCounts[item]} ${sellButton}</li>`;
+    let useButton = item.includes("Defense Up Potion") ? `<button onclick="useItem('${item}')">Use</button>` : "";
+    console.log(item, useButton);
+    inventoryListElement.innerHTML += `<li>${item} X ${itemCounts[item]} ${useButton} ${sellButton}</li>`;
   }
+}
+
+function useItem(item) {
+  switch (item) {
+    case "Defense Up Potion":
+      player.defense += 7;
+      removeItemInInventory(item);
+      document.getElementById("result").innerHTML = "You used a Defense Up Potion. Your defense increased by 7!";
+      break;
+    default:
+      break;
+  }
+
+  updateStats();
+  updateInventoryDisplay();
 }
 
 function sellItem(item) {
@@ -344,7 +361,7 @@ function sellItem(item) {
 
     player.gold += getItemSellValue(item);
 
-    updateInventoryDispla();
+    updateInventoryDisplay();
     updateStats();
   }
 }
