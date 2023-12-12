@@ -135,6 +135,35 @@ function buyIronSwordUpgrade(cost, upgradeType, successMessage) {
   }
 }
 
+function craftDefensePotion() {
+  const requiredSlimeCores = 3;
+
+  if(countItemInInventory("Slime Core") >= requiredSlimeCores) {
+    for (let i = 0; i < requiredSlimeCores; i++) {
+      removeItemInInventory("Slime Core");
+    }
+
+    inventory.push("Defense Up Potion");
+
+    updateInventoryDisplay();
+
+    document.getElementById("result").innerHTML = "Crafted Defense Up Potion successfully.";
+  } else {
+    document.getElementById("result").innerHTML = "Not enough Slime Cores to craft Defense Up Potion.";
+  }
+}
+
+function countItemInInventory(item) {
+  return inventory.filter((i) => i === item).length;
+}
+
+function removeItemInInventory(item) {
+  const index = inventory.indexOf(item);
+  if (index !== -1) {
+    inventory.splice(index, 1);
+  }
+}
+
 function fight() {
   if (currentMonster) {
     if (player.agility >= currentMonster.agility) {
@@ -213,7 +242,7 @@ function simulateBattle(attacker, defender = {}) {
     defender.currentHealth -= damage;
     document.getElementById("result").innerHTML += `<br>Player strikes again for ${damage} damage.`;
     if (ironSwordUpgrades.lifesteal) {
-      let lifestealAmount = Math.floor(0.1 * damage);
+      let lifestealAmount = Math.floor(0.25 * damage);
       player.currentHealth += lifestealAmount;
       document.getElementById("result").innerHTML += `<br>Lifesteal! You healed for ${lifestealAmount} health.`;
       if (player.currentHealth > player.maxHealth) {
@@ -295,11 +324,16 @@ function updateInventoryDisplay() {
   let inventoryListElement = document.getElementById("inventory-list");
   inventoryListElement.innerHTML = " ";
 
+  let itemCounts = {};
+
   inventory.forEach((item) => {
-    let itemCount = inventory.filter((i) => i === item).length;
-    let sellButton = `<button onclick="sellItem('${item}')">Sell</button>`;
-    inventoryListElement.innerHTML += `<li>${item} X ${itemCount} ${sellButton}</li>`;
+    itemCounts[item] = (itemCounts[item] || 0) + 1;
   });
+
+  for (let item in itemCounts) {
+    let sellButton = `<button onclick="sellItem('${item}')">Sell</button>`;
+    inventoryListElement.innerHTML += `<li>${item} X ${itemCounts[item]} ${sellButton}</li>`;
+  }
 }
 
 function sellItem(item) {
