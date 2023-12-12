@@ -296,8 +296,32 @@ function updateInventoryDisplay() {
 
   inventory.forEach((item) => {
     let itemCount = inventory.filter((i) => i === item).length;
-    inventoryListElement.innerHTML += `<li>${item} X ${itemCount}</li>`;
+    let sellButton = `<button onclick="sellItem('${item}')">Sell</button>`;
+    inventoryListElement.innerHTML += `<li>${item} X ${itemCount} ${sellButton}</li>`;
   });
+}
+
+function sellItem(item) {
+  const index = inventory.indexOf(item);
+
+  if (index !== -1) {
+    inventory.splice(index, 1);
+
+    player.gold += getItemSellValue(item);
+
+    updateInventoryDispla();
+    updateStats();
+  }
+}
+
+function getItemSellValue(item) {
+  const sellValues = {
+    "Slime Core": 5, 
+    "Shabby Cloth": 8, 
+    "Orc Bones": 12,
+  };
+
+  return sellValues[item] || 0;
 }
 
 function enemyStrikeBack(attacker, defender) {
