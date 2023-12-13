@@ -199,13 +199,29 @@ function runAway() {
   }
 }
 
+function applyLifesteal(damage) {
+  if (ironSwordUpgrades.lifesteal) {
+    let lifestealAmount = Math.floor(0.25 * damage);
+    console.log(lifestealAmount);
+    player.currentHealth += lifestealAmount;
+    document.getElementById("result").innerHTML += `<br>Lifesteal! You healed for ${lifestealAmount}.`;
+    if (player.currentHealth > player.maxHealth) {
+      player.currentHealth = player.maxHealth;
+    }
+  }
+}
+
 
 function simulateBattle(attacker, defender = {}) {
-  let damage = Math.max(attacker.damage - defender.defense, 0);
 
+  let damage = attacker.damage;
+  
   if (attacker === player && player.strikePotionActive) {
     damage *= 2;
   }
+
+  damage = Math.max(damage - defender.defense, 0);
+
 
   let firstStriker = attacker.agility >= defender.agility ? attacker : defender;
   let secondStriker = firstStriker === attacker ? defender : attacker;
@@ -228,27 +244,12 @@ function simulateBattle(attacker, defender = {}) {
   }
 
   document.getElementById("result").innerHTML += `<br>${firstStriker.name} struck first! ${secondStriker.name} took ${damage} damage. ${secondStriker.name}'s health: ${secondStriker.currentHealth}.`;
-
-  if (attacker === player && ironSwordUpgrades.lifesteal) {
-    let lifestealAmount = Math.floor(0.1 * damage);
-    player.currentHealth += lifestealAmount;
-    document.getElementById("result").innerHTML += `<br>Lifesteal! You healed for ${lifestealAmount} health.`;
-    if (player.currentHealth > player.maxHealth) {
-      player.currentHealth = player.maxHealth;
-    }
-  }
+  applyLifesteal(damage);
 
   if (attacker === player && ironSwordUpgrades.doubleStrike) {
     defender.currentHealth -= damage;
     document.getElementById("result").innerHTML += `<br>Player strikes again for ${damage} damage.`;
-    if (ironSwordUpgrades.lifesteal) {
-      let lifestealAmount = Math.floor(0.25 * damage);
-      player.currentHealth += lifestealAmount;
-      document.getElementById("result").innerHTML += `<br>Lifesteal! You healed for ${lifestealAmount} health.`;
-      if (player.currentHealth > player.maxHealth) {
-        player.currentHealth = player.maxHealth;
-      }
-    }
+    applyLifesteal(damage);
   }
 
   if (attacker === player && ironSwordUpgrades.midasTouch) {
@@ -455,5 +456,9 @@ window.addEventListener('keydown', (event) => {
 
   if (event.key === '1') {
     buyHealthPotion();
+  }
+
+  if (event.key === '2') {
+    buyStrikePotion();
   }
 })
