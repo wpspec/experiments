@@ -211,7 +211,28 @@ function applyLifesteal(damage) {
   }
 }
 
+function simulateDoubleStrike(attacker, defender) {
+  let damage = Math.max(attacker.damage - defender.defense, 0);
 
+  if (attacker === player && ironSwordUpgrades.doubleStrike) {
+    document.getElementById("result").innerHTML += `<br>Player strikes again for ${damage} damage.`;
+
+    applyLifesteal(damage);
+    applyLifesteal(damage);
+
+    defender.currentHealth -= damage;
+  } else {
+    defender.currentHealth -= damage;
+
+    applyLifesteal(damage);
+  }
+
+  if (defender.hiddenAbility) {
+    activateHiddenAbility(attacker, defender);
+  }
+
+  updateStats();
+}
 function simulateBattle(attacker, defender = {}) {
 
   let damage = attacker.damage;
@@ -245,12 +266,15 @@ function simulateBattle(attacker, defender = {}) {
 
   document.getElementById("result").innerHTML += `<br>${firstStriker.name} struck first! ${secondStriker.name} took ${damage} damage. ${secondStriker.name}'s health: ${secondStriker.currentHealth}.`;
   applyLifesteal(damage);
+  simulateDoubleStrike(attacker, defender);
 
+  /*
   if (attacker === player && ironSwordUpgrades.doubleStrike) {
     defender.currentHealth -= damage;
     document.getElementById("result").innerHTML += `<br>Player strikes again for ${damage} damage.`;
     applyLifesteal(damage);
   }
+  */
 
   if (attacker === player && ironSwordUpgrades.midasTouch) {
     let randomNumber = Math.random();
