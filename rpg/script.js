@@ -153,6 +153,22 @@ function craftDefensePotion() {
   }
 }
 
+function craftSlingshot() {
+  if (countItemInInventory("Shabby Cloth") >= 2 && countItemInInventory("Slime Core") >= 1) {
+    removeItemInInventory("Shabby Cloth");
+    removeItemInInventory("Shabby Cloth");
+    removeItemInInventory("Slime Core");
+
+    inventory.push("Slingshot");
+
+    updateInventoryDisplay();
+
+    document.getElementById("result").innerHTML = "Crafted a Slingshot!";
+  } else {
+    document.getElementById("result").innerHTML = "Not enough ingredients to craft a Slingshot.";
+  }
+}
+
 function countItemInInventory(item) {
   return inventory.filter((i) => i === item).length;
 }
