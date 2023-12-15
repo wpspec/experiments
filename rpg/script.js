@@ -4,8 +4,8 @@ let player = {
   maxHealth: 100,
   experience: 0,
   level: 1,
-  gold: 2000,
-  agility: 20,
+  gold: 500,
+  agility: 17,
   damage: 15,
   defense: 10,
   strikePotionActive: false,
@@ -268,14 +268,6 @@ function simulateBattle(attacker, defender = {}) {
   applyLifesteal(damage);
   simulateDoubleStrike(attacker, defender);
 
-  /*
-  if (attacker === player && ironSwordUpgrades.doubleStrike) {
-    defender.currentHealth -= damage;
-    document.getElementById("result").innerHTML += `<br>Player strikes again for ${damage} damage.`;
-    applyLifesteal(damage);
-  }
-  */
-
   if (attacker === player && ironSwordUpgrades.midasTouch) {
     let randomNumber = Math.random();
     if (randomNumber < 0.25) {
@@ -296,13 +288,23 @@ function simulateBattle(attacker, defender = {}) {
   if (secondStriker.currentHealth <= 0) {
     currentMonster.currentHealth += currentMonster.health;
     currentMonster = null;
-    player.gold += 10;
-    player.experience += 15;
 
-    document.getElementById("result").innerHTML += `<br>You defeated the ${defender.name}. You earned 10 gold & 15 experience!`;
+    let experienceReward = 0;
+    if (defender.name === "Slime 🤢") {
+      experienceReward = 5;
+    } else if (defender.name === "Goblin 👹") {
+      experienceReward = 10;
+    } else if (defender.name === "Orc 💀") {
+      experienceReward = 20;
+    }
+
+    player.experience += experienceReward;
+
+
+    document.getElementById("result").innerHTML += `<br>You defeated the ${defender.name}. You earned ${experienceReward} experience!`;
 
     let dropChance = Math.random();
-    if (dropChance < 0.25) {
+    if (dropChance < 0.35) {
       let item = getEnemySpecificItem(defender.name);
       inventory.push(item);
       document.getElementById("result").innerHTML += `<br>${defender.name} dropped ${item}!`;
@@ -396,6 +398,7 @@ function getItemSellValue(item) {
     "Slime Core": 5, 
     "Shabby Cloth": 8, 
     "Orc Bones": 12,
+    "Defense Up Potion": 25,
   };
 
   return sellValues[item] || 0;
@@ -466,7 +469,7 @@ function checkLevelUp() {
 }
 
 window.addEventListener('keydown', (event) => {
-  if (event.key === ' ') {
+  if (event.key === 'e') {
     explore();
   }
 
