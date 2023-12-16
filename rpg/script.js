@@ -10,6 +10,7 @@ let player = {
   defense: 10,
   strikePotionActive: false,
   ironSwordBought: false,
+  slingshotAmmo: 99,
 };
 
 let inventory = [];
@@ -18,7 +19,7 @@ let ironSwordUpgrades = {
   doubleStrike: false,
   lifesteal: false,
   midasTouch: false
-}
+};
 
 let currentMonster = null;
 let playerDefeatedCurrentMonster = false;
@@ -169,6 +170,21 @@ function craftSlingshot() {
   }
 }
 
+function craftSlingshotAmmo() {
+  if (countItemInInventory("Slime Core") >= 2) {
+    removeItemInInventory("Slime Core");
+    removeItemInInventory("Slime Core");
+
+    inventory.push("Slingshot Ammo");
+
+    updateInventoryDisplay();
+
+    document.getElementById("result").innerHTML = "Crafted a Slingshot!";
+  } else {
+    document.getElementById("result").innerHTML = "Not enough ingredients to craft a Slingshot Ammo!.";
+  }
+}
+
 function countItemInInventory(item) {
   return inventory.filter((i) => i === item).length;
 }
@@ -198,6 +214,20 @@ function fight() {
     }
 
     player.strikePotionActive = false;
+  }
+}
+
+function shoot() {
+  if (player.slingshotAmmo > 0) {
+    const damageDealt = 5;
+
+    player.slingshotAmmo -= 1;
+
+    currentMonster.currentHealth -= damageDealt;
+
+    document.getElementById("result").innerHTML += `<br>You dealt 5 damage to the enemy! Enemy's health: ${currentMonster.currentHealth}`;
+
+    updateStats();
   }
 }
 
@@ -376,7 +406,7 @@ function updateInventoryDisplay() {
   for (let item in itemCounts) {
     let sellButton = `<button onclick="sellItem('${item}')">Sell</button>`;
     let useButton = item.includes("Defense Up Potion") ? `<button onclick="useItem('${item}')">Use</button>` : "";
-    console.log(item, useButton);
+    useButton = item.includes("Slingshot") ? `<button onclick="useItem('${item}')">Use</button>` : useButton;
     inventoryListElement.innerHTML += `<li>${item} X ${itemCounts[item]} ${useButton} ${sellButton}</li>`;
   }
 }
@@ -387,6 +417,11 @@ function useItem(item) {
       player.defense += 7;
       removeItemInInventory(item);
       document.getElementById("result").innerHTML = "You used a Defense Up Potion. Your defense increased by 7!";
+      break;
+    case "Slingshot":
+      player.damage += 10;
+      removeItemInInventory(item);
+      document.getElementById("result").innerHTML = `You used a Slingshot! Your damage is increased to ${player.damage}`;
       break;
     default:
       break;
@@ -453,7 +488,8 @@ function updateStats() {
     Gold: ${player.gold}, 
     Agility: ${player.agility},
     Damage: ${player.damage}, 
-    Defense: ${player.defense}`;
+    Defense: ${player.defense}, 
+    Slingshot Ammo: ${player.slingshotAmmo}`;
 
   if (currentMonster && player.currentHealth > 0) {
     document.getElementById("button-container").style.display = "block";
