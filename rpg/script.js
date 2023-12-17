@@ -480,9 +480,11 @@ function enemyStrikeBack(attacker, defender) {
 function updateStats() {
   let playerStatsElement = document.getElementById("player-stats");
 
+  let healthColor = player.currentHealth <= 40 ? 'red' : 'black';
+
   playerStatsElement.innerHTML = `Player Stats: 
     Name: ${player.name}, 
-    Current Health: ${player.currentHealth}/${player.maxHealth}, 
+    Current Health: <span style="color: ${healthColor}">${player.currentHealth}</span>/${player.maxHealth}, 
     Experience: ${player.experience}, 
     Level: ${player.level}, 
     Gold: ${player.gold}, 

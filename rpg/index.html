@@ -8,15 +8,8 @@
   </head>
   <body>
     <h1>Simple HTML5 RPG</h1>
-    <p>
-    You've been summoned by a god of another world. <br>
-    Complete this trial to become a hero candidate. <br>
-    Otherwise :)
-
-    </p>
     <div id="game-container">
       <h2>Game World</h2>
-      <p>Welcome to the RPG World! Explore and interact with the environment.</p>
 
       <div id="player-stats"></div>
       <button id="exploreButton" onclick="explore()">Explore (e)</button>
@@ -39,10 +32,11 @@
 	<button onclick="craftDefensePotion()">Craft Defense Potion</button>
 	<button onclick="craftSlingshot()">Craft Slingshot</button>
       </div>
-      <div id="inventory">
-	<h2>Inventory</h2>
-	<ul id="inventory-list"></ul>
-      </div>
+      
+    </div>
+    <div id="inventory">
+      <h2>Inventory</h2>
+      <ul id="inventory-list"></ul>
     </div>
     <script src="script.js"></script>
   </body>
