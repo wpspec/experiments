@@ -9,23 +9,16 @@ let player = {
   damage: 15,
   defense: 10,
   strikePotionActive: false,
-  ironSwordBought: false,
   slingshotAmmo: 99,
 };
 
 let inventory = [];
 
-let ironSwordUpgrades = {
-  doubleStrike: false,
-  lifesteal: false,
-  midasTouch: false
-};
-
 let currentMonster = null;
 let playerDefeatedCurrentMonster = false;
 
 let enemies = [
-  { name: "SLIME", health: 40, currentHealth: 40, damage: 15, agility: 1, defense: 5, hiddenAbility: "Dissolve" },
+  { name: "SLIME", health: 40, currentHealth: 40, damage: 15, agility: 1, defense: 5 },
   { name: "GOBLIN", health: 60, currentHealth: 60, damage: 30, agility: 5, defense: 8 },
   { name: "ORC", health: 80, currentHealth: 80, damage: 50, agility: 7, defense: 12 }
 ];
@@ -84,56 +77,6 @@ function buyStrikePotion() {
   }
 
   updateStats();
-}
-
-function buyIronSword() {
-  if (!player.ironSwordBought) {
-    if (player.gold >= 50) {
-      player.gold -= 50;
-      player.damage += 10;
-
-      player.ironSwordBought = true;
-
-      document.getElementById("result").innerHTML = "You bought an Iron Sword for 50 gold. Your damage increased by 10.";
-      updateStats();
-    } else {
-      document.getElementById("result").innerHTML = "You don't have enough gold to buy an Iron Sword.";
-    }
-  } else {
-    document.getElementById("result").innerHTML = "You already bought an Iron Sword.";
-  }
-}
-
-function upgradeIronSword(upgradeType) {
-  switch (upgradeType) {
-    case 'doubleStrike':
-      buyIronSwordUpgrade(50, 'doubleStrike', 'You upgraded your Iron Sword. Double Strike unlocked!');
-      ironSwordUpgrades.doubleStrike = true;
-      break;
-    case 'lifesteal':
-      buyIronSwordUpgrade(100, 'lifesteal', 'You upgraded your Iron Sword. Lifesteal unlocked!');
-      ironSwordUpgrades.lifesteal = true;
-      break;
-    case 'midasTouch':
-      buyIronSwordUpgrade(150, 'midasTouch', 'You upgraded your Iron Sword. Midas Touch unlocked!');
-      ironSwordUpgrades.midasTouch = true;
-      break;
-    default:
-      break;
-  }
-}
-
-function buyIronSwordUpgrade(cost, upgradeType, successMessage) {
-  if (player.gold >= cost && !player[upgradeType]) {
-    player.gold -= cost;
-    player[upgradeType] = true;
-    document.getElementById("result").innerHTML = successMessage;
-    updateStats();
-  } else if (player[upgradeType]) {
-    document.getElementById("result").innerHTML = `You already have the ${upgradeType} upgrade.`;
-  } else {
-    document.getElementById("result").innerHTML = `You don't have enough gold to buy the ${upgradeType} upgrade.`;
-  }
 }
 
 function craftDefensePotion() {
@@ -361,16 +304,6 @@ function simulateBattle(attacker, defender = {}) {
 
 function activateHiddenAbility(attacker, enemy) {
   switch (enemy.hiddenAbility) {
-    case "Dissolve":
-      if (attacker === player && player.ironSwordBought) {
-	let dissolveChance = Math.random();
-	if (dissolveChance < 0.25) {
-	  player.ironSwordBought = false;
-	  player.damage -= 10;
-	  document.getElementById("result").innerHTML += "<br>The SLIME dissolved your Iron Sword!";
-	}
-      }
-      break;
   }
 }
 
