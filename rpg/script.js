@@ -335,12 +335,11 @@ function simulateBattle(attacker, defender = {}) {
       experienceReward = 5;
     } else if (defender.name === "GOBLIN") {
       experienceReward = 10;
-    } else if (defender.name === "OGRE") {
+    } else if (defender.name === "ORC") {
       experienceReward = 20;
     }
 
     player.experience += experienceReward;
-
 
     document.getElementById("result").innerHTML += `<br>You defeated the ${defender.name}. You earned ${experienceReward} experience!`;
 
