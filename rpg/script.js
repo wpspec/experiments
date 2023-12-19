@@ -23,6 +23,10 @@ let enemies = [
   { name: "ORC", health: 80, currentHealth: 80, damage: 50, agility: 7, defense: 12 }
 ];
 
+const craftingRecipes = {
+  'Defense Up Potion': { ingredients: ['Slime Core', 'Slime Core', 'Slime Core'], result: 'Defense Up Potion' },
+};
+
 window.addEventListener('load', (event) => {
   document.getElementById("exploreButton").addEventListener("click", updateInventoryDisplay);
   updateInventoryDisplay();
@@ -79,54 +83,6 @@ function buyStrikePotion() {
   updateStats();
 }
 
-function craftDefensePotion() {
-  const requiredSlimeCores = 3;
-
-  if(countItemInInventory("Slime Core") >= requiredSlimeCores) {
-    for (let i = 0; i < requiredSlimeCores; i++) {
-      removeItemInInventory("Slime Core");
-    }
-
-    inventory.push("Defense Up Potion");
-
-    updateInventoryDisplay();
-
-    document.getElementById("result").innerHTML = "Crafted Defense Up Potion successfully.";
-  } else {
-    document.getElementById("result").innerHTML = "Not enough Slime Cores to craft Defense Up Potion.";
-  }
-}
-
-function craftSlingshot() {
-  if (countItemInInventory("Shabby Cloth") >= 2 && countItemInInventory("Slime Core") >= 1) {
-    removeItemInInventory("Shabby Cloth");
-    removeItemInInventory("Shabby Cloth");
-    removeItemInInventory("Slime Core");
-
-    inventory.push("Slingshot");
-
-    updateInventoryDisplay();
-
-    document.getElementById("result").innerHTML = "Crafted a Slingshot!";
-  } else {
-    document.getElementById("result").innerHTML = "Not enough ingredients to craft a Slingshot.";
-  }
-}
-
-function craftSlingshotAmmo() {
-  if (countItemInInventory("Slime Core") >= 2) {
-    removeItemInInventory("Slime Core");
-    removeItemInInventory("Slime Core");
-
-    inventory.push("Slingshot Ammo");
-
-    updateInventoryDisplay();
-
-    document.getElementById("result").innerHTML = "Crafted a Slingshot!";
-  } else {
-    document.getElementById("result").innerHTML = "Not enough ingredients to craft a Slingshot Ammo!.";
-  }
-}
 
 function countItemInInventory(item) {
   return inventory.filter((i) => i === item).length;
@@ -188,35 +144,6 @@ function runAway() {
   }
 }
 
-function applyLifesteal(damage) {
-  if (ironSwordUpgrades.lifesteal) {
-    let lifestealAmount = Math.floor(0.25 * damage);
-    player.currentHealth += lifestealAmount;
-    document.getElementById("result").innerHTML += `<br>Lifesteal! You healed for ${lifestealAmount}.`;
-    if (player.currentHealth > player.maxHealth) {
-      player.currentHealth = player.maxHealth;
-    }
-  }
-}
-
-function simulateDoubleStrike(attacker, defender) {
-  let damage = Math.max(attacker.damage - defender.defense, 0);
-
-  if (ironSwordUpgrades.doubleStrike) {
-    document.getElementById("result").innerHTML += `<br>Player strikes again for ${damage} damage.`;
-
-    applyLifesteal(damage);
-    applyLifesteal(damage);
-
-    defender.currentHealth -= damage;
-  }
-
-  if (defender.hiddenAbility) {
-    activateHiddenAbility(attacker, defender);
-  }
-
-  updateStats();
-}
 
 function simulateBattle(attacker, defender = {}) {
 
@@ -393,8 +320,6 @@ function enemyStrikeBack(attacker, defender) {
   if (defender.name === "PLAYER") {
     goBold = 900;
   }
-
-  console.log(goBold);
 
   if (isEvaded){
     document.getElementById("result").innerHTML += `<br>${defender.name} evaded ${attacker.name}'s attack! No damage taken.`;
