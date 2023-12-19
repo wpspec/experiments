@@ -1,5 +1,5 @@
 let player = {
-  name: "Player",
+  name: "PLAYER",
   currentHealth: 100,
   maxHealth: 100,
   experience: 0,
@@ -25,9 +25,9 @@ let currentMonster = null;
 let playerDefeatedCurrentMonster = false;
 
 let enemies = [
-  { name: "Slime 🤢", health: 40, currentHealth: 40, damage: 15, agility: 1, defense: 5, hiddenAbility: "Dissolve" },
-  { name: "Goblin 👹", health: 60, currentHealth: 60, damage: 30, agility: 5, defense: 8 },
-  { name: "Orc 💀", health: 80, currentHealth: 80, damage: 50, agility: 7, defense: 12 }
+  { name: "SLIME", health: 40, currentHealth: 40, damage: 15, agility: 1, defense: 5, hiddenAbility: "Dissolve" },
+  { name: "GOBLIN", health: 60, currentHealth: 60, damage: 30, agility: 5, defense: 8 },
+  { name: "ORC", health: 80, currentHealth: 80, damage: 50, agility: 7, defense: 12 }
 ];
 
 window.addEventListener('load', (event) => {
@@ -248,7 +248,6 @@ function runAway() {
 function applyLifesteal(damage) {
   if (ironSwordUpgrades.lifesteal) {
     let lifestealAmount = Math.floor(0.25 * damage);
-    console.log(lifestealAmount);
     player.currentHealth += lifestealAmount;
     document.getElementById("result").innerHTML += `<br>Lifesteal! You healed for ${lifestealAmount}.`;
     if (player.currentHealth > player.maxHealth) {
@@ -260,17 +259,13 @@ function applyLifesteal(damage) {
 function simulateDoubleStrike(attacker, defender) {
   let damage = Math.max(attacker.damage - defender.defense, 0);
 
-  if (attacker === player && ironSwordUpgrades.doubleStrike) {
+  if (ironSwordUpgrades.doubleStrike) {
     document.getElementById("result").innerHTML += `<br>Player strikes again for ${damage} damage.`;
 
     applyLifesteal(damage);
     applyLifesteal(damage);
 
     defender.currentHealth -= damage;
-  } else {
-    defender.currentHealth -= damage;
-
-    applyLifesteal(damage);
   }
 
   if (defender.hiddenAbility) {
@@ -279,6 +274,7 @@ function simulateDoubleStrike(attacker, defender) {
 
   updateStats();
 }
+
 function simulateBattle(attacker, defender = {}) {
 
   let damage = attacker.damage;
@@ -302,7 +298,6 @@ function simulateBattle(attacker, defender = {}) {
     }
   }
 
-  
 
   secondStriker.currentHealth -= damage;
 
@@ -336,11 +331,11 @@ function simulateBattle(attacker, defender = {}) {
     currentMonster = null;
 
     let experienceReward = 0;
-    if (defender.name === "Slime 🤢") {
+    if (defender.name === "SLIME") {
       experienceReward = 5;
-    } else if (defender.name === "Goblin 👹") {
+    } else if (defender.name === "GOBLIN") {
       experienceReward = 10;
-    } else if (defender.name === "Orc 💀") {
+    } else if (defender.name === "OGRE") {
       experienceReward = 20;
     }
 
@@ -373,7 +368,7 @@ function activateHiddenAbility(attacker, enemy) {
 	if (dissolveChance < 0.25) {
 	  player.ironSwordBought = false;
 	  player.damage -= 10;
-	  document.getElementById("result").innerHTML += "<br>The Slime dissolved your Iron Sword!";
+	  document.getElementById("result").innerHTML += "<br>The SLIME dissolved your Iron Sword!";
 	}
       }
       break;
@@ -382,11 +377,11 @@ function activateHiddenAbility(attacker, enemy) {
 
 function getEnemySpecificItem(enemyType) {
   switch (enemyType) {
-    case "Slime 🤢":
+    case "SLIME":
       return "Slime Core";
-    case "Goblin 👹":
+    case "GOBLIN":
       return "Shabby Cloth";
-    case "Orc 💀":
+    case "ORC":
       return "Orc Bones";
     default:
       return "Unknown Item";
@@ -461,11 +456,19 @@ function enemyStrikeBack(attacker, defender) {
   let evasionChance = (player.agility * 0.01);
   let isEvaded = Math.random() < evasionChance;
 
+  let nameColor = defender.name === "PLAYER" ? 'var(--second)' : 'var(--first)';
+  let goBold;
+  if (defender.name === "PLAYER") {
+    goBold = 900;
+  }
+
+  console.log(goBold);
+
   if (isEvaded){
     document.getElementById("result").innerHTML += `<br>${defender.name} evaded ${attacker.name}'s attack! No damage taken.`;
   } else {
     defender.currentHealth -= damage;
-    document.getElementById("result").innerHTML += `<br>${attacker.name} strikes back! ${defender.name} took ${damage} damage. ${defender.name}'s health: ${defender.currentHealth}.`;
+    document.getElementById("result").innerHTML += `<br>${attacker.name} strikes back! <span style="color: ${nameColor}; font-weight: ${goBold}">${defender.name}</span> took ${damage} damage. <span style="color: ${nameColor} font-weight: ${goBold}">${defender.name}</span>'s health: ${defender.currentHealth}.`;
   }
 
   updateStats();
@@ -529,6 +532,10 @@ window.addEventListener('keydown', (event) => {
 
   if (event.key === 'f') {
     fight();
+  }
+
+  if (event.key === 's') {
+    shoot();
   }
 
   if (event.key === 'd') {
