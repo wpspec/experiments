@@ -6,10 +6,9 @@ let player = {
   level: 1,
   gold: 500,
   agility: 17,
-  damage: 15,
+  damage: 50,
   defense: 10,
   strikePotionActive: false,
-  slingshotAmmo: 99,
 };
 
 let inventory = [];
@@ -32,6 +31,7 @@ window.addEventListener('load', (event) => {
   updateInventoryDisplay();
 });
 
+
 function getRandomEnemy() {
   let randomIndex = Math.floor(Math.random() * enemies.length);
   return enemies[randomIndex];
@@ -52,6 +52,31 @@ function explore() {
   document.getElementById("button-container").style.display = "block";
 
   updateStats();
+}
+
+function offerSacrifices() {
+  const experienceFromSacrifices = calculateExperienceFromInventory();
+  player.experience += experienceFromSacrifices;
+
+  inventory = [];
+
+  document.getElementById("result").innerHTML = `You offered sacrifices and experience 
+  gained ${experienceFromSacrifices} experience!`;
+
+  updateStats();
+  updateInventoryDisplay();
+} 
+
+function calculateExperienceFromInventory() {
+  let totalExperience = 0;
+
+  inventory.forEach((item) => {
+    const enemyItem = item;
+    console.log(enemyItem);
+    totalExperience += enemyItem.experienceValue;
+  });
+
+  return totalExperience;
 }
 
 
@@ -116,21 +141,6 @@ function fight() {
   }
 }
 
-function shoot() {
-  if (player.slingshotAmmo > 0) {
-    const damageDealt = 5;
-
-    player.slingshotAmmo -= 1;
-
-    currentMonster.currentHealth -= damageDealt;
-
-    document.getElementById("result").innerHTML += `<br>You dealt 5 damage to the enemy! Enemy's health: ${currentMonster.currentHealth}`;
-
-    updateStats();
-  }
-}
-
-
 function runAway() {
   if (currentMonster) {
     player.currentHealth -= 10;
@@ -176,18 +186,6 @@ function simulateBattle(attacker, defender = {}) {
   }
 
   document.getElementById("result").innerHTML += `<br>${firstStriker.name} struck first! ${secondStriker.name} took ${damage} damage. ${secondStriker.name}'s health: ${secondStriker.currentHealth}.`;
-  applyLifesteal(damage);
-  simulateDoubleStrike(attacker, defender);
-
-  if (attacker === player && ironSwordUpgrades.midasTouch) {
-    let randomNumber = Math.random();
-    if (randomNumber < 0.25) {
-      defender.currentHealth -= defender.health;
-      document.getElementById("result").innerHTML += `<br>Enemy turned to gold! You earned ${defender.health}.`;
-      player.gold += defender.health;
-    }
-  }
-
 
   if (defender.hiddenAbility) {
     activateHiddenAbility(attacker, defender);
@@ -214,7 +212,7 @@ function simulateBattle(attacker, defender = {}) {
     document.getElementById("result").innerHTML += `<br>You defeated the ${defender.name}. You earned ${experienceReward} experience!`;
 
     let dropChance = Math.random();
-    if (dropChance < 0.35) {
+    if (dropChance < 0.75) {
       let item = getEnemySpecificItem(defender.name);
       inventory.push(item);
       document.getElementById("result").innerHTML += `<br>${defender.name} dropped ${item}!`;
@@ -237,7 +235,7 @@ function activateHiddenAbility(attacker, enemy) {
 function getEnemySpecificItem(enemyType) {
   switch (enemyType) {
     case "SLIME":
-      return "Slime Core";
+      return { item: "Slime Core", experienceValue: 5 };
     case "GOBLIN":
       return "Shabby Cloth";
     case "ORC":
@@ -258,9 +256,9 @@ function updateInventoryDisplay() {
   });
 
   for (let item in itemCounts) {
+    console.log(item);
     let sellButton = `<button onclick="sellItem('${item}')">Sell</button>`;
     let useButton = item.includes("Defense Up Potion") ? `<button onclick="useItem('${item}')">Use</button>` : "";
-    useButton = item.includes("Slingshot") ? `<button onclick="useItem('${item}')">Use</button>` : useButton;
     inventoryListElement.innerHTML += `<li>${item} X ${itemCounts[item]} ${useButton} ${sellButton}</li>`;
   }
 }
@@ -271,11 +269,6 @@ function useItem(item) {
       player.defense += 7;
       removeItemInInventory(item);
       document.getElementById("result").innerHTML = "You used a Defense Up Potion. Your defense increased by 7!";
-      break;
-    case "Slingshot":
-      player.damage += 10;
-      removeItemInInventory(item);
-      document.getElementById("result").innerHTML = `You used a Slingshot! Your damage is increased to ${player.damage}`;
       break;
     default:
       break;
@@ -307,6 +300,34 @@ function getItemSellValue(item) {
   };
 
   return sellValues[item] || 0;
+}
+
+function craftItem(itemName) {
+  const recipe = craftingRecipes[itemName];
+
+  if (recipe) {
+    if (hasIngredients(recipe.ingredients)) {
+      consumeIngredients(recipe.ingredients);
+
+      inventory.push(recipe.result);
+
+      document.getElementById("result").innerHTML = `Crafted ${itemName} successfully.`;
+
+      updateInventoryDisplay();
+    } else {
+      document.getElementById("result").innerHTML = "Not enough ingredients to craft this item.";
+    }
+  } else {
+    document.getElementById("result").innerHTML = "Crafting recipe not found.";
+  }
+}
+
+function hasIngredients(ingredients) {
+  return ingredients.every((ingredient) => countItemInInventory(ingredient) >= 1);
+}
+
+function consumeIngredients(ingredients) {
+  ingredients.forEach((ingredient) => removeItemInInventory(ingredient));
 }
 
 function enemyStrikeBack(attacker, defender) {
@@ -350,8 +371,7 @@ function updateStats() {
     Gold: ${player.gold}, 
     Agility: ${player.agility},
     Damage: ${player.damage}, 
-    Defense: ${player.defense}, 
-    Slingshot Ammo: ${player.slingshotAmmo}`;
+    Defense: ${player.defense}`;
 
   if (currentMonster && player.currentHealth > 0) {
     document.getElementById("button-container").style.display = "block";
@@ -359,9 +379,6 @@ function updateStats() {
     document.getElementById("button-container").style.display = "none";
   }
 
-  if (player.ironSwordBought) {
-    document.getElementById("ironSwordUpgrades").style.display = "block";
-  }
 }
 
 function checkGameOver() {

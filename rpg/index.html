@@ -13,18 +13,19 @@
 
       <div id="player-stats"></div>
       <button id="exploreButton" onclick="explore()">Explore (e)</button>
-      <button id="buyPotionButton" onclick="buyHealthPotion()">Buy Health Potion</button>
-      <button id="buyPotionButton" onclick="buyStrikePotion()">Buy Strike Potion</button>
+      <button id="offerSacrificesButton" onclick="offerSacrifices()">Offer Sacrifices</button>
+      <button id="buyPotionButton" onclick="buyHealthPotion()">Buy Health Potion
+      (1)</button>
+      <button id="buyPotionButton" onclick="buyStrikePotion()">Buy Strike Potion
+      (2)</button>
       <p id="result"></p>
       <div id="button-container" class="button-container" style="display: none;">
 	<button onclick="fight()">Fight (f)</button>
-	<button onclick="shoot()">Shoot (s)</button>
 	<button onclick="runAway()">Run Away (d)</button>
       </div>
       <div id="crafting">
 	<h2>Crafting</h2>
-	<button onclick="craftDefensePotion()">Craft Defense Potion</button>
-	<button onclick="craftSlingshot()">Craft Slingshot</button>
+	<button onclick="craftItem('Defense Up Potion')">Craft Defense Potion</button>
       </div>
       
     </div>
