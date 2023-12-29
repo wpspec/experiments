@@ -72,7 +72,6 @@ function calculateExperienceFromInventory() {
 
   inventory.forEach((item) => {
     const enemyItem = item;
-    console.log(enemyItem);
     totalExperience += enemyItem.experienceValue;
   });
 
@@ -215,7 +214,7 @@ function simulateBattle(attacker, defender = {}) {
     if (dropChance < 0.75) {
       let item = getEnemySpecificItem(defender.name);
       inventory.push(item);
-      document.getElementById("result").innerHTML += `<br>${defender.name} dropped ${item}!`;
+      document.getElementById("result").innerHTML += `<br>${defender.name} dropped ${item.item}!`;
     }
 
     document.getElementById("exploreButton").style.display = "inline-block";
@@ -227,21 +226,16 @@ function simulateBattle(attacker, defender = {}) {
   }
 }
 
-function activateHiddenAbility(attacker, enemy) {
-  switch (enemy.hiddenAbility) {
-  }
-}
-
 function getEnemySpecificItem(enemyType) {
   switch (enemyType) {
     case "SLIME":
       return { item: "Slime Core", experienceValue: 5 };
     case "GOBLIN":
-      return "Shabby Cloth";
+      return { item: "Shabby Cloth", experienceValue: 10 };
     case "ORC":
-      return "Orc Bones";
+      return { item: "Orc Bones", experienceValue: 20 };
     default:
-      return "Unknown Item";
+      return { item: "Unknown Item", experienceValue: 0 };
   }
 }
 
@@ -251,15 +245,14 @@ function updateInventoryDisplay() {
 
   let itemCounts = {};
 
-  inventory.forEach((item) => {
-    itemCounts[item] = (itemCounts[item] || 0) + 1;
+  inventory.forEach((itemObject) => {
+    const itemName = itemObject.item;
+    itemCounts[itemName] = (itemCounts[itemName] || 0) + 1;
   });
 
-  for (let item in itemCounts) {
-    console.log(item);
-    let sellButton = `<button onclick="sellItem('${item}')">Sell</button>`;
-    let useButton = item.includes("Defense Up Potion") ? `<button onclick="useItem('${item}')">Use</button>` : "";
-    inventoryListElement.innerHTML += `<li>${item} X ${itemCounts[item]} ${useButton} ${sellButton}</li>`;
+  for (let itemName in itemCounts) {
+    let sellButton = `<button onclick="sellItem('${itemName}')">Sell</button>`;
+    inventoryListElement.innerHTML += `<li>${itemName} X ${itemCounts[itemName]} ${sellButton}</li>`;
   }
 }
 
