@@ -43,10 +43,17 @@ function explore() {
   if (randomNumber < 0.5) {
     player.gold += 10;
     document.getElementById("result").innerHTML = "You found a treasure! +10 gold.";
+
+    document.getElementById("goldSound").play();
+
     currentMonster = null;
   } else {
     currentMonster = getRandomEnemy();
     document.getElementById("result").innerHTML = "You encountered a/an " + currentMonster.name + "!";
+
+    if (currentMonster.name === "ORC") {
+      document.getElementById("orcSound").play();
+    }
   }
 
   document.getElementById("button-container").style.display = "block";
@@ -63,6 +70,7 @@ function offerSacrifices() {
   document.getElementById("result").innerHTML = `You offered sacrifices and experience 
   gained ${experienceFromSacrifices} experience!`;
 
+  checkLevelUp();
   updateStats();
   updateInventoryDisplay();
 } 
@@ -126,7 +134,6 @@ function fight() {
     } else {
       simulateBattle(currentMonster, player);
     }
-
 
     checkGameOver();
     checkLevelUp();
@@ -252,24 +259,11 @@ function updateInventoryDisplay() {
 
   for (let itemName in itemCounts) {
     let sellButton = `<button onclick="sellItem('${itemName}')">Sell</button>`;
-    inventoryListElement.innerHTML += `<li>${itemName} X ${itemCounts[itemName]} ${sellButton}</li>`;
+    let useButton = itemName.includes("Defense Up Potion") ? `<button onclick="useItem('${itemName}')">Use</button>` : "";
+    inventoryListElement.innerHTML += `<li>${itemName} X ${itemCounts[itemName]} ${useButton} ${sellButton}</li>`;
   }
 }
 
-function useItem(item) {
-  switch (item) {
-    case "Defense Up Potion":
-      player.defense += 7;
-      removeItemInInventory(item);
-      document.getElementById("result").innerHTML = "You used a Defense Up Potion. Your defense increased by 7!";
-      break;
-    default:
-      break;
-  }
-
-  updateStats();
-  updateInventoryDisplay();
-}
 
 function sellItem(item) {
   const index = inventory.indexOf(item);
@@ -302,6 +296,8 @@ function craftItem(itemName) {
     if (hasIngredients(recipe.ingredients)) {
       consumeIngredients(recipe.ingredients);
 
+      console.log(recipe.result);
+
       inventory.push(recipe.result);
 
       document.getElementById("result").innerHTML = `Crafted ${itemName} successfully.`;
@@ -316,11 +312,24 @@ function craftItem(itemName) {
 }
 
 function hasIngredients(ingredients) {
-  return ingredients.every((ingredient) => countItemInInventory(ingredient) >= 1);
+  return ingredients.every((ingredient) => {
+    const requiredCount = 1;
+    const actualCount = inventory.filter((itemObject) => itemObject.item === 
+      ingredient).length;
+    return actualCount >= requiredCount;
+  });
 }
 
 function consumeIngredients(ingredients) {
-  ingredients.forEach((ingredient) => removeItemInInventory(ingredient));
+  ingredients.forEach((ingredient) => {
+    const index = inventory.findIndex((itemObject) => itemObject.item === 
+      ingredient);
+    if (index !== -1) {
+      inventory.splice(index, 1);
+    }
+  });
+
+  updateInventoryDisplay();
 }
 
 function enemyStrikeBack(attacker, defender) {
@@ -399,10 +408,6 @@ window.addEventListener('keydown', (event) => {
 
   if (event.key === 'f') {
     fight();
-  }
-
-  if (event.key === 's') {
-    shoot();
   }
 
   if (event.key === 'd') {
