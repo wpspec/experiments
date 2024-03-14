@@ -23,11 +23,15 @@ let enemies = [
 ];
 
 const craftingRecipes = {
-  'Defense Up Potion': { ingredients: ['Slime Core', 'Slime Core', 'Slime Core'], result: 'Defense Up Potion' },
+  'Defense Up Potion': { 
+    ingredients: ['Slime Core', 'Slime Core', 'Slime Core'],
+    result: 'Defense Up Potion'
+  },
 };
 
 window.addEventListener('load', (event) => {
-  document.getElementById("exploreButton").addEventListener("click", updateInventoryDisplay);
+  document.getElementById("exploreButton")
+          .addEventListener("click", updateInventoryDisplay);
   updateInventoryDisplay();
 });
 
@@ -38,27 +42,95 @@ function getRandomEnemy() {
 }
 
 function explore() {
-  let randomNumber = Math.random();
-
-  if (randomNumber < 0.5) {
-    player.gold += 10;
-    document.getElementById("result").innerHTML = "You found a treasure! +10 gold.";
-
-    document.getElementById("goldSound").play();
-
-    currentMonster = null;
-  } else {
-    currentMonster = getRandomEnemy();
-    document.getElementById("result").innerHTML = "You encountered a/an " + currentMonster.name + "!";
-
-    if (currentMonster.name === "ORC") {
-      document.getElementById("orcSound").play();
-    }
+  // Initialize player gold if needed
+  if (typeof player.gold === 'undefined') {
+    player.gold = 0;
   }
 
+  // Generate random gold between 10 and 20
+  let randomGold = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
+
+  if (Math.random() < 0.5) {
+    // Add random gold to player
+    player.gold += randomGold;
+    // Display message
+    document.getElementById("result").innerHTML = "You found a treasure! +" +
+      randomGold + " gold.";
+
+    // Play gold sound if available
+    let goldSound = document.getElementById("goldSound");
+    if (goldSound) {
+      goldSound.play();
+    }
+
+    // Reset current monster
+    currentMonster = null;
+  } else {
+    // Set current monster
+    currentMonster = getRandomEnemy();
+    
+    let enemyColor;
+    switch(currentMonster.name) {
+      case "SLIME":
+        enemyColor = "#008000";
+        break;
+      case "GOBLIN":
+        enemyColor = "#8B0000";
+        break;
+      case "ORC":
+        enemyColor = "#696969";
+        break;
+      default:
+        enemyColor = "black";
+    }
+
+    document.getElementById("result").innerHTML = `<span style="color:
+      ${enemyColor};">You encountered a/an ${currentMonster.name}!</span>`;
+
+    document.getElementById("timer-bar-container").style.display = "block";
+
+    startTimer(2);
+  }
+
+  // Show button container
   document.getElementById("button-container").style.display = "block";
 
+  // Update player stats
   updateStats();
+}
+
+function startTimer(duration) {
+  let width = 100;
+  let intervalDuration = duration * 1000 / 100;
+  let timerInterval = setInterval(() => {
+    width -= 1;
+    document.getElementById("timer-bar").style.width = width + "%";
+
+    if (width <= 0) {
+      clearInterval(timerInterval);
+      document.getElementById("timer-bar-container").style.display = "none";
+
+      timerRunsOutAction();
+    }
+  }, intervalDuration);
+}
+
+function timerRunsOutAction() {
+  if (currentMonster && !playerDefeatedCurrentMonster) {
+    player.currentHealth -= currentMonster.damage;
+
+    if (player.currentHealth < 0) {
+      player.currentHealth = 0;
+    }
+
+    document.getElementById("result").innerHTML += `<br>The 
+      ${currentMonster.name} attacks! You took ${currentMonster.damage} damage.
+      Your health: ${player.currentHealth}.`;
+
+    updateStats();
+
+    checkGameOver();
+  }
 }
 
 function offerSacrifices() {
@@ -67,8 +139,8 @@ function offerSacrifices() {
 
   inventory = [];
 
-  document.getElementById("result").innerHTML = `You offered sacrifices and experience 
-  gained ${experienceFromSacrifices} experience!`;
+  document.getElementById("result").innerHTML = `You offered sacrifices and 
+    experience gained ${experienceFromSacrifices} experience!`;
 
   checkLevelUp();
   updateStats();
@@ -179,9 +251,7 @@ function simulateBattle(attacker, defender = {}) {
     if (playerDefeatedCurrentMonster) {
       document.getElementById("result").innerHTML += `<br>${attacker.name} struck first! ${defender.name} is already defeated.`;
       currentMonster = null;
-      playerDefeatedCurrentMonster = true;
-      return;
-    }
+      playerDefeatedCurrentMonster = true; return; }
   }
 
 
@@ -345,10 +415,13 @@ function enemyStrikeBack(attacker, defender) {
   }
 
   if (isEvaded){
-    document.getElementById("result").innerHTML += `<br>${defender.name} evaded ${attacker.name}'s attack! No damage taken.`;
+    document.getElementById("result").innerHTML += `<br>${defender.name} evaded
+      ${attacker.name}'s attack! No damage taken.`;
   } else {
     defender.currentHealth -= damage;
-    document.getElementById("result").innerHTML += `<br>${attacker.name} strikes back! <span style="color: ${nameColor}; font-weight: ${goBold}">${defender.name}</span> took ${damage} damage. <span style="color: ${nameColor} font-weight: ${goBold}">${defender.name}</span>'s health: ${defender.currentHealth}.`;
+    document.getElementById("result").innerHTML += `<br>${attacker.name} 
+      strikes back! ${defender.name} took ${damage} damage. ${defender.name}'s 
+      health: ${defender.currentHealth}.`;
   }
 
   updateStats();
@@ -397,7 +470,9 @@ function checkLevelUp() {
     player.currentHealth = player.maxHealth;
     player.agility += 5;
     player.experience = 0;
-    document.getElementById("result").innerHTML += `<br>Congratulations! You leveled up to level ${player.level}. Maximum health increased to ${player.maxHealth}.`;
+    document.getElementById("result").innerHTML += 
+      `<br>Congratulations! You leveled up to level ${player.level}. Maximum 
+      health increased to ${player.maxHealth}.`;
   }
 }
 

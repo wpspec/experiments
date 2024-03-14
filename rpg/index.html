@@ -9,7 +9,7 @@
   <body>
     <h1>Simple HTML5 RPG</h1>
     <div id="game-container">
-      <h2>Game World</h2>
+      <h2 class="shake">Game World</h2>
 
       <div id="player-stats"></div>
       <button id="exploreButton" onclick="explore()">Explore (e)</button>
@@ -18,10 +18,16 @@
       (1)</button>
       <button id="buyPotionButton" onclick="buyStrikePotion()">Buy Strike Potion
       (2)</button>
-      <p id="result"></p>
+
+      <div id="result"></div>
+
+      <div id="timer-bar-container" style="display: none;">
+        <div id="timer-bar"></div>
+      </div>
+
       <div id="button-container" class="button-container" style="display: none;">
-	<button onclick="fight()">Fight (f)</button>
-	<button onclick="runAway()">Run Away (d)</button>
+        <button onclick="fight()">Fight (f)</button>
+        <button onclick="runAway()">Run Away (d)</button>
       </div>
       <div id="crafting">
 	<h2>Crafting</h2>
@@ -35,6 +41,5 @@
     </div>
     <script src="script.js"></script>
     <audio id="goldSound" src="gold.mp3"></audio>
-    <audio id="orcSound" src="orcSound.mp3"></audio>
   </body>
 </html>
